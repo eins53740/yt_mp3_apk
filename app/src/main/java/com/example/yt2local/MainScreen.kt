@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.yt2local.R
 
 @Composable
 fun MainScreen(
@@ -28,8 +29,8 @@ fun MainScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Logo (Placeholder if resource not found, but we added it)
-        // Image(painter = painterResource(id = R.mipmap.ic_launcher), contentDescription = "Logo", modifier = Modifier.size(100.dp))
+        // Logo
+        Image(painter = painterResource(id = R.mipmap.ic_launcher), contentDescription = "Logo", modifier = Modifier.size(100.dp))
         Text(text = "YT2Local", style = MaterialTheme.typography.headlineLarge)
         
         Spacer(modifier = Modifier.height(32.dp))

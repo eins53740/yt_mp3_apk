@@ -1,4 +1,4 @@
-# YT2Local
+t# YT2Local
 
 Android application to convert YouTube videos to MP3 (192kbps) or Video (Max Resolution).
 
@@ -21,3 +21,16 @@ Android application to convert YouTube videos to MP3 (192kbps) or Video (Max Res
 
 ## Note
 The first time you run the app and try to download, the `youtubedl-android` library might need to update its internal python/ffmpeg binaries. This happens automatically but requires an internet connection.
+
+## How to Install on Phone
+You likely mean **USB Debugging** (Android Auto is for cars).
+1. **Enable Developer Options**: Settings > About Phone > Tap "Build Number" 7 times.
+2. **Enable USB Debugging**: Settings > System > Developer Options > Enable USB Debugging.
+3. **Connect via USB**: Connect your phone to your PC.
+4. **Run from Android Studio**: Click the green "Run" arrow in the toolbar. Select your connected device.
+   - This will build and install the app automatically.
+5. **Manual APK Transfer**:
+   - In Android Studio: `Build > Build Bundle(s) / APK(s) > Build APK(s)`.
+   - Find the APK in `app/build/outputs/apk/debug/app-debug.apk`.
+   - Copy this file to your phone's storage.
+   - Tap the file on your phone to install.
