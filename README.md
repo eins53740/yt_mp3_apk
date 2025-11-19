@@ -23,7 +23,6 @@ Android application to convert YouTube videos to MP3 (192kbps) or Video (Max Res
 The first time you run the app and try to download, the `youtubedl-android` library might need to update its internal python/ffmpeg binaries. This happens automatically but requires an internet connection.
 
 ## How to Install on Phone
-You likely mean **USB Debugging** (Android Auto is for cars).
 1. **Enable Developer Options**: Settings > About Phone > Tap "Build Number" 7 times.
 2. **Enable USB Debugging**: Settings > System > Developer Options > Enable USB Debugging.
 3. **Connect via USB**: Connect your phone to your PC.

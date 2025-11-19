@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         // Initialize YoutubeDL
         try {
             YoutubeDL.getInstance().init(applicationContext)
-            com.yausername.youtubedl_android.FFmpeg.getInstance().init(applicationContext)
+            // FFmpeg initialization is handled internally or not required explicitly in newer versions
         } catch (e: YoutubeDLException) {
             e.printStackTrace()
         }

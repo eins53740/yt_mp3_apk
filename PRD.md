@@ -50,7 +50,7 @@ To enhance the user experience, the following features are recommended:
     -   Automatically detect if a YouTube link is in the clipboard when the app opens.
 
 ## 4. Technical Constraints & Considerations
--   **Android 16 / API Level 35+:** Strict enforcement of Scoped Storage. Direct filesystem paths like `/sdcard/Download` are deprecated; `MediaStore` or `Storage Access Framework` must be used. We will ensure the files appear in the user's "Downloads" folder in the requested subfolder.
+-   **Android 15 / API Level 35+:** Strict enforcement of Scoped Storage. Direct filesystem paths like `/sdcard/Download` are deprecated; `MediaStore` or `Storage Access Framework` must be used. We will ensure the files appear in the user's "Downloads" folder in the requested subfolder.
 -   **Dependencies:**
     -   Likely requires a wrapper around `yt-dlp` (e.g., `youtubedl-android`) and `ffmpeg` for conversion.
     -   Permissions: `INTERNET`, `POST_NOTIFICATIONS`.
