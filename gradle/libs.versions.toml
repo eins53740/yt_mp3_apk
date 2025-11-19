@@ -8,7 +8,7 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.2"
 activityCompose = "1.8.1"
 composeBom = "2023.08.00"
-youtubedlAndroid = "0.16.0"
+youtubedlAndroid = "0.18.0"
 coil = "2.5.0"
 
 [libraries]

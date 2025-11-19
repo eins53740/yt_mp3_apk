@@ -33,6 +33,8 @@ class YoutubeRepository(private val context: Context) {
                 request.addOption("-x") // Extract audio
                 request.addOption("--audio-format", "mp3")
                 request.addOption("--audio-quality", "192K")
+            } else {
+                request.addOption("--merge-output-format", "mp4")
             }
 
             val response = YoutubeDL.getInstance().execute(request) { progress, etaInSeconds, line ->
@@ -44,7 +46,10 @@ class YoutubeRepository(private val context: Context) {
                 ?: return@withContext Result.failure(Exception("No file downloaded"))
 
             // 3. Move to MediaStore (Downloads/yt2local)
-            val fileName = "yt_${System.currentTimeMillis()}_${downloadedFile.name}"
+            val extension = downloadedFile.extension
+            val sdf = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
+            val datetime = sdf.format(java.util.Date())
+            val fileName = "yt_${datetime}.${extension}"
             val relativePath = "${Environment.DIRECTORY_DOWNLOADS}/yt2local"
             
             val contentValues = ContentValues().apply {
