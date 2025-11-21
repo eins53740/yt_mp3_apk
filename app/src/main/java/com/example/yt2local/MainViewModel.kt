@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.yausername.youtubedl_android.YoutubeDL
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -28,12 +29,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 YoutubeDL.getInstance().init(getApplication())
-                isInitialized = true
-                statusMessage = "Ready"
-            } catch (e: Exception) {
-                isInitialized = false
-                statusMessage = "Error: failed to initialize"
+                withContext(Dispatchers.Main) {
+                    isInitialized = true
+                    statusMessage = "Ready"
+                }
+            } catch (e: Throwable) {
                 e.printStackTrace()
+                val stackTrace = android.util.Log.getStackTraceString(e)
+                withContext(Dispatchers.Main) {
+                    isInitialized = false
+                    statusMessage = "Init Error: ${e.message}\n$stackTrace"
+                }
             }
         }
     }
