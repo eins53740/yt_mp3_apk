@@ -4,6 +4,23 @@
             "outputFile": "com.example.yt2local.app-mergeDebugResources-51:/values/values.xml",
             "map": [
                 {
+                    "source": "D:\\GitHub\\yt_mp3_apk\\app\\src\\main\\res\\values\\styles.xml",
+                    "from": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "59",
+                        "endColumns": "85",
+                        "endOffsets": "140"
+                    },
+                    "to": {
+                        "startLines": "1811",
+                        "startColumns": "4",
+                        "startOffsets": "119894",
+                        "endColumns": "84",
+                        "endOffsets": "119974"
+                    }
+                },
+                {
                     "source": "C:\\Users\\bfsd\\.gradle\\caches\\8.13\\transforms\\91f6fbebfd5d3ad7fcc5fb034ca78672\\transformed\\customview-poolingcontainer-1.0.0\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,3",
@@ -76,24 +93,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\bfsd\\Documents\\GitHub\\yt_mp3_apk\\app\\src\\main\\res\\values\\styles.xml",
-                    "from": {
-                        "startLines": "3",
-                        "startColumns": "4",
-                        "startOffsets": "59",
-                        "endColumns": "85",
-                        "endOffsets": "140"
-                    },
-                    "to": {
-                        "startLines": "1811",
-                        "startColumns": "4",
-                        "startOffsets": "119894",
-                        "endColumns": "84",
-                        "endOffsets": "119974"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\bfsd\\Documents\\GitHub\\yt_mp3_apk\\app\\src\\main\\res\\values\\strings.xml",
+                    "source": "D:\\GitHub\\yt_mp3_apk\\app\\src\\main\\res\\values\\strings.xml",
                     "from": {
                         "startLines": "1",
                         "startColumns": "4",

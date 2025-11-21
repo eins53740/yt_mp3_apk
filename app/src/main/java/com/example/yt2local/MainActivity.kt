@@ -15,13 +15,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize YoutubeDL
-        try {
-            YoutubeDL.getInstance().init(applicationContext)
-            // FFmpeg initialization is handled internally or not required explicitly in newer versions
-        } catch (e: YoutubeDLException) {
-            e.printStackTrace()
-        }
+        // YoutubeDL initialization is now handled in MainViewModel
 
         var sharedUrl: String? = null
         if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {

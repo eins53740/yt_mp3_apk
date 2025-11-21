@@ -70,7 +70,7 @@ fun MainScreen(
 
         Button(
             onClick = { viewModel.startDownload() },
-            enabled = !viewModel.isDownloading,
+            enabled = !viewModel.isDownloading && viewModel.isInitialized,
             modifier = Modifier.fillMaxWidth()
         ) {
             if (viewModel.isDownloading) {
@@ -81,6 +81,14 @@ fun MainScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Processing...")
+            } else if (!viewModel.isInitialized) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Initializing...")
             } else {
                 Text("Convert & Download")
             }
