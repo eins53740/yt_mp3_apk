@@ -39,7 +39,6 @@
 -keepclassmembers class com.example.yt2local.DownloadProgress { *; }
 -keepclassmembers class com.example.yt2local.DownloadResult { *; }
 -keepclassmembers class com.example.yt2local.DownloadHistoryItem { *; }
--keepclassmembers class com.example.yt2local.VideoInfo { *; }
 
 # Keep enums
 -keepclassmembers enum * {

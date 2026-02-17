@@ -1,11 +1,18 @@
 package com.example.yt2local
 
+import android.Manifest
 import android.app.Application
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.yausername.aria2c.Aria2c
@@ -25,15 +32,18 @@ enum class AppState {
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = VideoRepository(application)
+    private val prefs = application.getSharedPreferences("yt2local_prefs", Context.MODE_PRIVATE)
 
     companion object {
         private const val TAG = "MainViewModel"
+        private const val PREF_IS_AUDIO = "is_audio"
+        private const val NOTIFICATION_ID = 1001
     }
 
     // UI State
     var url by mutableStateOf("")
         private set
-    var isAudio by mutableStateOf(true)
+    var isAudio by mutableStateOf(prefs.getBoolean(PREF_IS_AUDIO, true))
         private set
     var statusMessage by mutableStateOf("Initializing...")
         private set
@@ -48,6 +58,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var downloadHistory = mutableStateOf<List<DownloadHistoryItem>>(emptyList())
         private set
     var ytDlpVersion by mutableStateOf("")
+        private set
+
+    // Auto-download flag: set when URL comes from share/view intent
+    var autoDownloadPending by mutableStateOf(false)
+        private set
+
+    // Snackbar message: set after successful download, consumed by UI
+    var snackbarMessage by mutableStateOf<String?>(null)
         private set
 
     val isReady: Boolean
@@ -152,6 +170,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onFormatChange(audio: Boolean) {
         isAudio = audio
+        prefs.edit().putBoolean(PREF_IS_AUDIO, audio).apply()
+    }
+
+    /**
+     * Called when a URL arrives from a share/view intent.
+     * Forces audio mode and sets auto-download flag.
+     */
+    fun setUrlFromIntent(intentUrl: String, autoStart: Boolean = false) {
+        url = intentUrl
+        detectedPlatform = repository.detectPlatform(intentUrl)
+        if (autoStart) {
+            isAudio = true
+            prefs.edit().putBoolean(PREF_IS_AUDIO, true).apply()
+            autoDownloadPending = true
+        }
+    }
+
+    /**
+     * Called by UI when auto-download conditions are met (READY + flag set).
+     */
+    fun consumeAutoDownload() {
+        if (autoDownloadPending) {
+            autoDownloadPending = false
+            startDownload()
+        }
+    }
+
+    fun clearSnackbar() {
+        snackbarMessage = null
     }
 
     fun startDownload() {
@@ -196,6 +243,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (result.success) {
                     statusMessage = "Saved to Downloads/yt2local/${result.fileName}"
+                    snackbarMessage = "Saved: ${result.fileName}"
+
+                    // Post notification
+                    postDownloadNotification(result.fileName ?: "Download complete")
 
                     // Add to history
                     val historyItem = DownloadHistoryItem(
@@ -214,6 +265,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+    }
+
+    private fun postDownloadNotification(fileName: String) {
+        val app = getApplication<Application>()
+
+        // Check notification permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(app, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
+        }
+
+        val notification = NotificationCompat.Builder(app, YT2LocalApplication.CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Download Complete")
+            .setContentText(fileName)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        NotificationManagerCompat.from(app).notify(NOTIFICATION_ID, notification)
     }
 
     fun retryInitialization() {

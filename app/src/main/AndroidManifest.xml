@@ -79,6 +79,13 @@
                 <data android:host="tiktok.com" />
                 <data android:host="www.tiktok.com" />
                 <data android:host="vm.tiktok.com" />
+                <data android:host="www.instagram.com" />
+                <data android:host="instagram.com" />
+                <data android:host="www.reddit.com" />
+                <data android:host="reddit.com" />
+                <data android:host="redd.it" />
+                <data android:host="soundcloud.com" />
+                <data android:host="www.soundcloud.com" />
             </intent-filter>
 
         </activity>

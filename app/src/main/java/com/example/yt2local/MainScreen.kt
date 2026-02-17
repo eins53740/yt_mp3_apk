@@ -19,54 +19,92 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
 fun MainScreen(
-    initialUrl: String? = null,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel
 ) {
-    LaunchedEffect(initialUrl) {
-        if (!initialUrl.isNullOrBlank()) {
-            viewModel.onUrlChange(initialUrl)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val clipboardManager = LocalClipboardManager.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Auto-download: when flag is set and app is READY, trigger download
+    LaunchedEffect(viewModel.autoDownloadPending, viewModel.appState) {
+        if (viewModel.autoDownloadPending && viewModel.appState == AppState.READY) {
+            viewModel.consumeAutoDownload()
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
+    // Snackbar on download completion
+    LaunchedEffect(viewModel.snackbarMessage) {
+        viewModel.snackbarMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.clearSnackbar()
+        }
+    }
+
+    // Clipboard auto-paste on resume (only when URL field is empty)
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && viewModel.url.isBlank()) {
+                val clipText = clipboardManager.getText()?.text
+                if (!clipText.isNullOrBlank() && looksLikeVideoUrl(clipText)) {
+                    viewModel.onUrlChange(clipText.trim())
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -94,19 +132,35 @@ fun MainScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
+                // yt-dlp version + update button
                 if (viewModel.ytDlpVersion.isNotBlank()) {
-                    Text(
-                        text = "yt-dlp: ${viewModel.ytDlpVersion}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "yt-dlp: ${viewModel.ytDlpVersion}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                        TextButton(
+                            onClick = { viewModel.forceUpdateYtDlp() },
+                            enabled = viewModel.isReady
+                        ) {
+                            Text(
+                                text = "Update",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
                 }
             }
 
             item {
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // URL Input
+                // URL Input with paste/clear trailing icon
                 OutlinedTextField(
                     value = viewModel.url,
                     onValueChange = { viewModel.onUrlChange(it) },
@@ -115,7 +169,29 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = viewModel.isReady,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    trailingIcon = {
+                        if (viewModel.url.isNotBlank()) {
+                            IconButton(onClick = { viewModel.onUrlChange("") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Clear"
+                                )
+                            }
+                        } else {
+                            IconButton(onClick = {
+                                val clipText = clipboardManager.getText()?.text
+                                if (!clipText.isNullOrBlank()) {
+                                    viewModel.onUrlChange(clipText.trim())
+                                }
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = android.R.drawable.ic_menu_paste),
+                                    contentDescription = "Paste"
+                                )
+                            }
+                        }
+                    }
                 )
 
                 // Platform Detection Badge
@@ -336,20 +412,12 @@ fun MainScreen(
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Recent Downloads",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        TextButton(onClick = { viewModel.forceUpdateYtDlp() }) {
-                            Text("Update yt-dlp")
-                        }
-                    }
+                    Text(
+                        text = "Recent Downloads",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
 
                 items(viewModel.downloadHistory.value) { item ->
@@ -371,6 +439,23 @@ fun MainScreen(
             }
         }
     }
+}
+
+/**
+ * Quick check if clipboard text looks like a video URL.
+ */
+private fun looksLikeVideoUrl(text: String): Boolean {
+    val lower = text.lowercase().trim()
+    if (!lower.startsWith("http://") && !lower.startsWith("https://")) return false
+    val videoHosts = listOf(
+        "youtube.com", "youtu.be", "music.youtube.com",
+        "vimeo.com", "tiktok.com", "twitter.com", "x.com",
+        "instagram.com", "facebook.com", "fb.watch",
+        "reddit.com", "redd.it", "soundcloud.com",
+        "twitch.tv", "dailymotion.com", "bandcamp.com",
+        "bilibili.com", "nicovideo.jp"
+    )
+    return videoHosts.any { lower.contains(it) }
 }
 
 @Composable

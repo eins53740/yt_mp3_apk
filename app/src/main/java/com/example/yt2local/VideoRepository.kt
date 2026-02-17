@@ -93,11 +93,9 @@ class VideoRepository(private val context: Context) {
                 // Handle geo-restrictions and age-gates where possible
                 addOption("--geo-bypass")
 
-                // Embed metadata and thumbnail for video files
-                if (!isAudio) {
-                    addOption("--embed-thumbnail")
-                    addOption("--embed-metadata")
-                }
+                // Embed metadata and thumbnail for both audio and video
+                addOption("--embed-thumbnail")
+                addOption("--embed-metadata")
 
                 // Use aria2c for faster downloads if available
                 addOption("--downloader", "aria2c")
@@ -183,7 +181,7 @@ class VideoRepository(private val context: Context) {
             val datetime = sdf.format(Date())
 
             // Create filename with title if available, otherwise use timestamp
-            val safeTitle = videoTitle?.let { sanitizeFileName(it) }?.take(50) ?: "media"
+            val safeTitle = videoTitle?.let { sanitizeFileName(it) } ?: "media"
             val fileName = "${safeTitle}_${datetime}.${extension}"
             val relativePath = "${Environment.DIRECTORY_DOWNLOADS}/$OUTPUT_DIR"
 
@@ -256,8 +254,10 @@ class VideoRepository(private val context: Context) {
     private fun sanitizeFileName(name: String): String {
         return name
             .replace(Regex("[\\\\/:*?\"<>|]"), "_")
+            .replace(Regex("[^\\p{L}\\p{N}._\\-\\s]"), "") // Strip emoji and special unicode
             .replace(Regex("\\s+"), "_")
             .trim('_', ' ')
+            .take(100) // Cap filename length
     }
 
     private fun parseError(e: Exception): String {
@@ -302,29 +302,12 @@ class VideoRepository(private val context: Context) {
         }
     }
 
-    suspend fun getVideoInfo(url: String): Result<VideoInfo> = withContext(Dispatchers.IO) {
-        try {
-            val request = YoutubeDLRequest(url).apply {
-                addOption("--dump-json")
-                addOption("--no-download")
-                addOption("--no-playlist")
-            }
-
-            val response = YoutubeDL.getInstance().execute(request)
-            // Parse JSON response to extract title, duration, etc.
-            // For now, return a simple success
-            Result.success(VideoInfo(title = "Video", duration = 0, platform = detectPlatform(url)))
-
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     fun detectPlatform(url: String): String {
         val normalizedUrl = url.lowercase()
         return when {
-            normalizedUrl.contains("youtube.com") || normalizedUrl.contains("youtu.be") -> "YouTube"
             normalizedUrl.contains("music.youtube.com") -> "YouTube Music"
+            normalizedUrl.contains("youtube.com/shorts") -> "YouTube Shorts"
+            normalizedUrl.contains("youtube.com") || normalizedUrl.contains("youtu.be") -> "YouTube"
             normalizedUrl.contains("vimeo.com") -> "Vimeo"
             normalizedUrl.contains("dailymotion.com") -> "Dailymotion"
             normalizedUrl.contains("twitch.tv") -> "Twitch"
@@ -344,9 +327,3 @@ class VideoRepository(private val context: Context) {
         }
     }
 }
-
-data class VideoInfo(
-    val title: String,
-    val duration: Long,
-    val platform: String
-)

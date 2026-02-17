@@ -4,19 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**YT2Local** is a native Android app that downloads videos from YouTube and 1000+ other platforms, converting them to local MP3 audio or MP4 video files. Supports Android Share intent for direct URL sharing from any app.
-
-## Tech Stack
-
-- **Kotlin 1.9.0** with Jetpack Compose (Material 3)
-- **Android SDK**: Min 26, Target/Compile 34
-- **Build**: Gradle 8.13.1 (Kotlin DSL) with Version Catalog
-- **Architecture**: MVVM with Repository pattern
-- **Key Libraries**:
-  - `youtubedl-android` (v0.18.0) - yt-dlp wrapper for video downloads
-  - `youtubedl-ffmpeg` (v0.18.0) - FFmpeg for audio/video conversion
-  - `youtubedl-aria2c` (v0.18.0) - Aria2c for faster parallel downloads
-  - `coil-compose` - Image loading
+**YT2Local** is a native Android app that downloads videos from YouTube and 1000+ other platforms (via yt-dlp), converting them to local MP3 audio or MP4 video files. Single-activity, single-screen app with Android Share/View intent support.
 
 ## Commands
 
@@ -24,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Build debug APK
 ./gradlew.bat assembleDebug
 
-# Build release APK (minified)
+# Build release APK (minified with ProGuard)
 ./gradlew.bat assembleRelease
 
 # Install to connected device
@@ -41,59 +29,49 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew.bat connectedAndroidTest
 ```
 
+Debug APK output: `app/build/outputs/apk/debug/app-debug.apk`
+
 ## Architecture
 
-```
-app/src/main/java/com/example/yt2local/
-├── MainActivity.kt          # Entry point, handles Share/View intents
-├── MainScreen.kt            # Compose UI with progress bar, platform detection
-├── MainViewModel.kt         # State management, YoutubeDL/FFmpeg/Aria2c init, yt-dlp updates
-├── VideoRepository.kt       # Download logic, multi-platform support, MediaStore integration
-├── YT2LocalApplication.kt   # Application class
-└── Theme.kt                 # Material 3 theming (YouTube-inspired colors)
-```
+Single-activity MVVM with Compose. All source in `app/src/main/java/com/example/yt2local/`:
 
-**Data Flow**:
-1. URL input (manual, Share intent, or direct VIEW intent) → ViewModel
-2. ViewModel extracts URL from text, detects platform → Repository.downloadMedia()
-3. Repository: yt-dlp download (with aria2c) → FFmpeg conversion → MediaStore upload
-4. Files saved to `Downloads/yt2local/` with `<title>_YYYYMMDD_HHmmss.<ext>` naming
+- **MainActivity** → Extracts URL from SEND/VIEW intents, passes to MainScreen
+- **MainScreen** → Full Compose UI, observes ViewModel state directly (no navigation)
+- **MainViewModel** → Owns all UI state as Compose `mutableStateOf` (not StateFlow). Manages `AppState` lifecycle and delegates downloads to `VideoRepository`
+- **VideoRepository** → All yt-dlp/FFmpeg logic. Downloads to UUID-named temp files, then copies to MediaStore
 
-**Supported Platforms** (1000+ via yt-dlp):
-- YouTube, YouTube Music, YouTube Shorts
-- TikTok, Instagram, Twitter/X, Facebook
-- Vimeo, Dailymotion, Twitch, Reddit
-- SoundCloud, Bandcamp, Bilibili, and many more
+### AppState Machine
 
-## Dependencies
+`INITIALIZING → UPDATING → READY ⇄ DOWNLOADING` (with `ERROR` reachable from any state)
 
-Dependencies managed via `gradle/libs.versions.toml`:
-- `io.github.junkfood02.youtubedl-android:library:0.18.0`
-- `io.github.junkfood02.youtubedl-android:ffmpeg:0.18.0`
-- `io.github.junkfood02.youtubedl-android:aria2c:0.18.0`
-- Compose BOM 2023.08.00
-- AndroidX Lifecycle 2.6.2
+On startup: YoutubeDL.init → FFmpeg.init → Aria2c.init (optional, failure tolerated) → yt-dlp update → READY
 
-## Build Configuration
+### Download Flow
 
-- **ABI splits**: x86, x86_64, armeabi-v7a, arm64-v8a (plus universal)
-- **ProGuard**: Enabled for release builds with custom rules
-- **JDK**: 17+ required
-- **Java target**: 17
+1. URL extracted from user input (regex extracts URLs, prefers known video platforms over generic URLs)
+2. yt-dlp downloads to `filesDir/video_temp/<uuid>.<ext>` (avoids special character issues in titles)
+3. File moved to `Downloads/yt2local/` via MediaStore API with naming: `<sanitized_title>_YYYYMMDD_HHmmss.<ext>`
+4. Temp directory cleaned after each download
 
-## Key Behaviors
+### Intent Handling
 
-- YoutubeDL, FFmpeg, and Aria2c initialize asynchronously in ViewModel
-- yt-dlp auto-updates to latest version on app start
-- URL extraction handles shared text with extra content (e.g., "Check out: https://...")
-- Platform auto-detection from URL shows badge in UI
-- Download progress with percentage and ETA displayed
-- Download history (in-memory, last 10 items)
-- Share intent extracts URL from `Intent.EXTRA_TEXT`
-- VIEW intent handles direct YouTube/TikTok/Twitter URLs
+Registered in AndroidManifest.xml for:
+- `ACTION_SEND` (text/plain) — Share from any app
+- `ACTION_VIEW` — Direct URL handling for YouTube, Vimeo, Twitter/X, TikTok domains
+- Activity uses `singleTask` launch mode, handles `onNewIntent` for already-running app
 
-## Intent Filters
+## Key Implementation Details
 
-The app registers as a handler for:
-- Share intent (text/plain) from any app
-- Direct URL viewing for YouTube, Vimeo, Twitter/X, TikTok domains
+- **State management**: All UI state uses Compose `mutableStateOf`/`mutableFloatStateOf` directly on ViewModel properties (not StateFlow)
+- **Platform detection**: `VideoRepository.detectPlatform()` uses URL substring matching. Note: "music.youtube.com" check must come before "youtube.com" (currently has a bug — the generic YouTube check matches first)
+- **Download history**: In-memory only (last 10 items), stored as `mutableStateOf<List<DownloadHistoryItem>>`
+- **Aria2c**: Used as download accelerator (`-x 16 -s 16`); initialization failure is non-fatal
+- **ProGuard**: Custom rules in `app/proguard-rules.pro` — must keep `youtubedl-android` classes and all data classes. **Add new data classes to ProGuard rules when creating them**
+- **ABI splits**: Builds per-architecture APKs (x86, x86_64, armeabi-v7a, arm64-v8a) plus universal
+- **Dependencies**: Managed via `gradle/libs.versions.toml`. Core library is `junkfood02/youtubedl-android` (library + ffmpeg + aria2c)
+
+## Build Requirements
+
+- JDK 17+
+- Android SDK: compileSdk/targetSdk 34, minSdk 26
+- Kotlin 1.9.0, Compose compiler 1.5.1
