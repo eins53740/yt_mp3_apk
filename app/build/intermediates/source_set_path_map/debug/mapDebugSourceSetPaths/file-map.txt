@@ -47,10 +47,10 @@ com.example.yt2local.app-lifecycle-viewmodel-2.6.2-45 C:\Users\bfsd\.gradle\cach
 com.example.yt2local.app-appcompat-1.6.1-46 C:\Users\bfsd\.gradle\caches\8.13\transforms\f529e57cd3717aed653561480dcde4c6\transformed\appcompat-1.6.1\res
 com.example.yt2local.app-coil-base-2.5.0-47 C:\Users\bfsd\.gradle\caches\8.13\transforms\f7d88c7ea17f385989878dd4e9dc826d\transformed\coil-base-2.5.0\res
 com.example.yt2local.app-ui-release-48 C:\Users\bfsd\.gradle\caches\8.13\transforms\f8b6506213449b1e2ff7a668670d041f\transformed\ui-release\res
-com.example.yt2local.app-resValues-49 C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\build\generated\res\resValues\debug
-com.example.yt2local.app-updated_navigation_xml-50 C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\build\generated\updated_navigation_xml\debug
-com.example.yt2local.app-packageDebugResources-51 C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.example.yt2local.app-packageDebugResources-52 C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.example.yt2local.app-debug-53 C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\build\intermediates\merged_res\debug\mergeDebugResources
-com.example.yt2local.app-debug-54 C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\debug\res
-com.example.yt2local.app-main-55 C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\res
+com.example.yt2local.app-resValues-49 D:\GitHub\yt_mp3_apk\app\build\generated\res\resValues\debug
+com.example.yt2local.app-updated_navigation_xml-50 D:\GitHub\yt_mp3_apk\app\build\generated\updated_navigation_xml\debug
+com.example.yt2local.app-packageDebugResources-51 D:\GitHub\yt_mp3_apk\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.example.yt2local.app-packageDebugResources-52 D:\GitHub\yt_mp3_apk\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.example.yt2local.app-debug-53 D:\GitHub\yt_mp3_apk\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.example.yt2local.app-debug-54 D:\GitHub\yt_mp3_apk\app\src\debug\res
+com.example.yt2local.app-main-55 D:\GitHub\yt_mp3_apk\app\src\main\res
