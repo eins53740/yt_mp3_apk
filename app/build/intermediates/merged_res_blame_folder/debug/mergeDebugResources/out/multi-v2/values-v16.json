@@ -4,7 +4,7 @@
             "outputFile": "com.example.yt2local.app-mergeDebugResources-51:/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\bfsd\\.gradle\\caches\\8.13\\transforms\\f529e57cd3717aed653561480dcde4c6\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
+                    "source": "C:\\Users\\bfsd\\.gradle\\caches\\9.2.1\\transforms\\b0167bcf8efcfbc1daf8b6ca84d18db8\\workspace\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -23,7 +23,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\bfsd\\.gradle\\caches\\8.13\\transforms\\0c7016fc9e8e8b7867bfaeb4611d5061\\transformed\\core-1.12.0\\res\\values-v16\\values-v16.xml",
+                    "source": "C:\\Users\\bfsd\\.gradle\\caches\\9.2.1\\transforms\\5dc817af27f7d5e27fcfb84fbb0abcb1\\workspace\\transformed\\core-1.12.0\\res\\values-v16\\values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
