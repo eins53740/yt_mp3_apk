@@ -390,6 +390,17 @@ fun MainScreen(
                         Text("Retry Initialization")
                     }
                 }
+
+                // Skip update button — visible only during yt-dlp update phase
+                if (viewModel.appState == AppState.UPDATING) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(
+                        onClick = { viewModel.skipUpdate() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Skip update")
+                    }
+                }
             }
 
             item {
