@@ -18,7 +18,9 @@ import androidx.lifecycle.viewModelScope
 import com.yausername.aria2c.Aria2c
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -39,6 +41,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val PREF_IS_AUDIO = "is_audio"
         private const val NOTIFICATION_ID = 1001
     }
+
+    // Cancellable job for yt-dlp update — held so skipUpdate() can cancel it
+    private var updateJob: Job? = null
 
     // UI State
     var url by mutableStateOf("")
@@ -101,15 +106,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     Log.w(TAG, "Aria2c initialization failed (optional): ${e.message}")
                 }
 
-                // Update yt-dlp to latest version
-                updateStatus("Checking for updates...")
-                updateYtDlp()
-
+                // Launch yt-dlp update as a cancellable child job
                 withContext(Dispatchers.Main) {
-                    appState = AppState.READY
-                    statusMessage = "Ready to download"
+                    appState = AppState.UPDATING
+                    statusMessage = "Updating yt-dlp... (tap Skip to proceed)"
+                }
+                updateJob = viewModelScope.launch(Dispatchers.IO) {
+                    updateYtDlp()
+                }
+                updateJob?.join()  // Wait for completion, but job can be cancelled by skipUpdate()
+
+                // Transition to READY only if skipUpdate() hasn't already done it
+                withContext(Dispatchers.Main) {
+                    if (appState == AppState.UPDATING) {
+                        appState = AppState.READY
+                        statusMessage = "Ready to download"
+                    }
                 }
 
+            } catch (e: CancellationException) {
+                // Normal — skipUpdate() cancelled the parent or child job
+                // State already set to READY by skipUpdate()
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Initialization failed", e)
                 withContext(Dispatchers.Main) {
@@ -122,11 +140,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun updateYtDlp() {
         try {
-            withContext(Dispatchers.Main) {
-                appState = AppState.UPDATING
-                statusMessage = "Updating yt-dlp..."
-            }
-
             val updateResult = YoutubeDL.getInstance().updateYoutubeDL(getApplication())
 
             withContext(Dispatchers.Main) {
@@ -294,6 +307,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         appState = AppState.INITIALIZING
         statusMessage = "Retrying initialization..."
         initialize()
+    }
+
+    /**
+     * Called from UI when user taps "Skip update" during UPDATING state.
+     * Cancels the yt-dlp update download and transitions to READY immediately.
+     * The blocking HTTP call may continue briefly in the background, but the
+     * UI becomes responsive immediately. Safe to call from main thread (onClick context).
+     */
+    fun skipUpdate() {
+        updateJob?.cancel()
+        updateJob = null
+        appState = AppState.READY
+        statusMessage = "Ready to download (update skipped)"
     }
 
     fun forceUpdateYtDlp() {
