@@ -12,7 +12,7 @@ YT2Local is a working but unstable Android downloader app that needs a reliabili
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Crash Fix** - Restore basic functionality so the app starts and downloads
+- [x] **Phase 1: Crash Fix** - Restore basic functionality so the app starts and downloads (completed 2026-02-27)
 - [ ] **Phase 2: Foundation** - Modernize dependencies, introduce Hilt DI and StateFlow state
 - [ ] **Phase 3: Reliability** - Foreground service, persistent history, and production error handling
 - [ ] **Phase 4: Power Features** - Download queue, audio/video quality picker
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Crash Fix | 1/2 | In Progress|  |
+| 1. Crash Fix | 2/2 | Complete   | 2026-02-27 |
 | 2. Foundation | 0/3 | Not started | - |
 | 3. Reliability | 0/3 | Not started | - |
 | 4. Power Features | 0/3 | Not started | - |
