@@ -28,11 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can successfully download a YouTube URL as MP3 from the main screen
   3. User sees a "Skip update" button during yt-dlp initialization that cancels and proceeds if tapped
   4. Build compiles cleanly with `./gradlew assembleDebug` without Gradle sync errors
-**Plans**: TBD
+**Plans**: 2 plans (1 wave)
 
 Plans:
-- [ ] 01-01: Fix manifest extractNativeLibs and AGP version typo
-- [ ] 01-02: Add skip-update button and initialization timeout
+- [ ] 01-01-PLAN.md — Fix extractNativeLibs manifest attribute and AGP 8.13.1 version typo
+- [ ] 01-02-PLAN.md — Add cancellable yt-dlp update with Skip button in UI
 
 ### Phase 2: Foundation
 **Goal**: The codebase runs on a modern, well-structured foundation with Hilt DI and StateFlow-based ViewModel state — app behavior is unchanged from Phase 1
