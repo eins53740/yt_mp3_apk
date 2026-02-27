@@ -9,8 +9,8 @@ Requirements for this refactoring milestone. Each maps to roadmap phases.
 
 ### Critical Fixes
 
-- [ ] **FIX-01**: App starts without crashing (add `extractNativeLibs="true"` to manifest)
-- [ ] **FIX-02**: Build succeeds with correct AGP version (fix 8.13.1 typo)
+- [x] **FIX-01**: App starts without crashing (add `extractNativeLibs="true"` to manifest)
+- [x] **FIX-02**: Build succeeds with correct AGP version (fix 8.13.1 typo)
 - [ ] **FIX-03**: User can skip yt-dlp update if it hangs on first launch (timeout/cancel button)
 
 ### Architecture
@@ -66,8 +66,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FIX-01 | Phase 1 | Pending |
-| FIX-02 | Phase 1 | Pending |
+| FIX-01 | Phase 1 | Complete |
+| FIX-02 | Phase 1 | Complete |
 | FIX-03 | Phase 1 | Pending |
 | ARCH-01 | Phase 2 | Pending |
 | ARCH-02 | Phase 2 | Pending |
