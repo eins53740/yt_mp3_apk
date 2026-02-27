@@ -1,0 +1,91 @@
+# Requirements: YT2Local
+
+**Defined:** 2026-02-27
+**Core Value:** Sharing a URL from any app instantly downloads it as an MP3 with zero taps
+
+## v1 Requirements
+
+Requirements for this refactoring milestone. Each maps to roadmap phases.
+
+### Critical Fixes
+
+- [ ] **FIX-01**: App starts without crashing (add `extractNativeLibs="true"` to manifest)
+- [ ] **FIX-02**: Build succeeds with correct AGP version (fix 8.13.1 typo)
+- [ ] **FIX-03**: User can skip yt-dlp update if it hangs on first launch (timeout/cancel button)
+
+### Architecture
+
+- [ ] **ARCH-01**: All dependencies injected via Hilt (ViewModel, Repository, Service)
+- [ ] **ARCH-02**: UI state managed via single StateFlow sealed class (replace scattered mutableStateOf)
+- [ ] **ARCH-03**: Errors displayed as user-friendly messages with retry option (no stack traces)
+- [ ] **ARCH-04**: URL field preserved on download failure (user doesn't have to re-enter)
+
+### Reliability
+
+- [ ] **REL-01**: Downloads continue when user backgrounds app (foreground service with notification)
+- [ ] **REL-02**: Download history persists across app restarts (Room database)
+- [ ] **REL-03**: User can share multiple URLs and they queue for sequential download
+- [ ] **REL-04**: User can tap history item to open/play the downloaded file
+
+### Modernization
+
+- [ ] **MOD-01**: Dependencies updated — Kotlin 2.x, Compose BOM 2026, Coil 3.x, KSP
+- [ ] **MOD-02**: Audio quality picker — user can choose bitrate (128/192/320 kbps)
+- [ ] **MOD-03**: Video quality picker — user can choose resolution (720p/1080p/Best)
+
+## v2 Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Testing
+
+- **TEST-01**: Unit tests for detectPlatform(), sanitizeFileName(), extractUrl()
+- **TEST-02**: Unit tests for AppState machine transitions
+- **TEST-03**: Integration tests for download flow
+
+### Polish
+
+- **POL-01**: Custom app icon (branded music+download icon)
+- **POL-02**: Haptic feedback on download completion
+- **POL-03**: Monochrome notification icon for Android 13+
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| In-app media player/streaming | This is a downloader, not a media player |
+| Playlist download support | High complexity, changes product scope |
+| User accounts/authentication | Local-only app |
+| Background sync/scheduled downloads | Manual trigger only |
+| AAB (App Bundle) builds | Permanently incompatible with youtubedl-android library |
+| Custom UI themes | Dark/light mode sufficient |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| FIX-01 | — | Pending |
+| FIX-02 | — | Pending |
+| FIX-03 | — | Pending |
+| ARCH-01 | — | Pending |
+| ARCH-02 | — | Pending |
+| ARCH-03 | — | Pending |
+| ARCH-04 | — | Pending |
+| REL-01 | — | Pending |
+| REL-02 | — | Pending |
+| REL-03 | — | Pending |
+| REL-04 | — | Pending |
+| MOD-01 | — | Pending |
+| MOD-02 | — | Pending |
+| MOD-03 | — | Pending |
+
+**Coverage:**
+- v1 requirements: 14 total
+- Mapped to phases: 0
+- Unmapped: 14
+
+---
+*Requirements defined: 2026-02-27*
+*Last updated: 2026-02-27 after initial definition*
