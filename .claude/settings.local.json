@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew.bat assembleDebug:*)",
+      "Bash(where:*)",
+      "Bash(dir \"C:\\\\Program Files\\\\Java\")",
+      "Bash(dir \"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\")",
+      "Bash(dir \"C:\\\\Program Files\\\\Microsoft\\\\jdk*\")",
+      "Bash(dir \"C:\\\\Users\\\\*\\\\.jdks\")",
+      "Bash(dir /s /b \"C:\\\\Program Files\\\\*jdk*\")",
+      "Bash(cmd /c \"dir /s /b \"\"C:\\\\Program Files\\\\Eclipse Adoptium\"\" 2>nul\")",
+      "Bash(cmd /c \"dir \"\"C:\\\\Program Files\"\"\")",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Program Files'' | Where-Object {$_Name -match ''java|jdk|android''} | Select-Object Name\")",
+      "Bash(export JAVA_HOME=\"/c/Github/BD/BD_Finance_android/tools/OpenJDK17/jdk-17.0.11+9\")",
+      "Bash(export PATH=\"$JAVA_HOME/bin:$PATH\")",
+      "Bash(java:*)",
+      "Bash(JAVA_HOME=\"C:\\\\Github\\\\BD\\\\BD_Finance_android\\\\tools\\\\OpenJDK17\\\\jdk-17.0.11+9\" ./gradlew.bat:*)",
+      "Bash(\"/c/Github/BD/BD_Finance_android/tools/OpenJDK17/jdk-17.0.11+9/bin/java.exe\" -version)",
+      "Bash(reg query:*)",
+      "Bash(reg query \"HKLM\\\\SOFTWARE\\\\JavaSoft\\\\Java Development Kit\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Skill(gsd:new-project)",
+      "Bash(node:*)",
+      "Bash(mkdir:*)",
+      "WebSearch",
+      "WebFetch(domain:xdaforums.com)",
+      "WebFetch(domain:ytdlnis.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:mvnrepository.com)",
+      "Skill(gsd:plan-phase)",
+      "Skill(gsd:execute-phase)"
+    ]
+  }
+}

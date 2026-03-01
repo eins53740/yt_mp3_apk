@@ -6,3 +6,4 @@ string app_name
 style Theme.YT2Local
 xml backup_rules
 xml data_extraction_rules
+xml network_security_config

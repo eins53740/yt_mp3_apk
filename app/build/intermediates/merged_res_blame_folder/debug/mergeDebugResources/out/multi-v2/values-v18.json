@@ -4,7 +4,11 @@
             "outputFile": "com.example.yt2local.app-mergeDebugResources-51:/values-v18/values-v18.xml",
             "map": [
                 {
+<<<<<<< HEAD
+                    "source": "C:\\Users\\bfsd\\.gradle\\caches\\9.3.1\\transforms\\c5022219e13ad225401c58e0fcef9a1b\\workspace\\transformed\\appcompat-1.4.2\\res\\values-v18\\values-v18.xml",
+=======
                     "source": "C:\\Users\\bfsd\\.gradle\\caches\\9.2.1\\transforms\\b0167bcf8efcfbc1daf8b6ca84d18db8\\workspace\\transformed\\appcompat-1.6.1\\res\\values-v18\\values-v18.xml",
+>>>>>>> main
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
