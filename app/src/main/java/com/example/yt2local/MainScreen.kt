@@ -43,6 +43,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -65,20 +67,21 @@ import java.util.Locale
 fun MainScreen(
     viewModel: MainViewModel
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val clipboardManager = LocalClipboardManager.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // Auto-download: when flag is set and app is READY, trigger download
-    LaunchedEffect(viewModel.autoDownloadPending, viewModel.appState) {
-        if (viewModel.autoDownloadPending && viewModel.appState == AppState.READY) {
+    LaunchedEffect(uiState.autoDownloadPending, uiState.appState) {
+        if (uiState.autoDownloadPending && uiState.appState == AppState.READY) {
             viewModel.consumeAutoDownload()
         }
     }
 
     // Snackbar on download completion
-    LaunchedEffect(viewModel.snackbarMessage) {
-        viewModel.snackbarMessage?.let { message ->
+    LaunchedEffect(uiState.snackbarMessage) {
+        uiState.snackbarMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
             viewModel.clearSnackbar()
         }
@@ -87,7 +90,7 @@ fun MainScreen(
     // Clipboard auto-paste on resume (only when URL field is empty)
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME && viewModel.url.isBlank()) {
+            if (event == Lifecycle.Event.ON_RESUME && uiState.url.isBlank()) {
                 val clipText = clipboardManager.getText()?.text
                 if (!clipText.isNullOrBlank() && looksLikeVideoUrl(clipText)) {
                     viewModel.onUrlChange(clipText.trim())
@@ -133,20 +136,20 @@ fun MainScreen(
                 )
 
                 // yt-dlp version + update button
-                if (viewModel.ytDlpVersion.isNotBlank()) {
+                if (uiState.ytDlpVersion.isNotBlank()) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "yt-dlp: ${viewModel.ytDlpVersion}",
+                            text = "yt-dlp: ${uiState.ytDlpVersion}",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline
                         )
                         TextButton(
                             onClick = { viewModel.forceUpdateYtDlp() },
-                            enabled = viewModel.isReady
+                            enabled = uiState.appState == AppState.READY
                         ) {
                             Text(
                                 text = "Update",
@@ -162,16 +165,16 @@ fun MainScreen(
 
                 // URL Input with paste/clear trailing icon
                 OutlinedTextField(
-                    value = viewModel.url,
+                    value = uiState.url,
                     onValueChange = { viewModel.onUrlChange(it) },
                     label = { Text("Paste video URL") },
                     placeholder = { Text("https://youtube.com/watch?v=...") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    enabled = viewModel.isReady,
+                    enabled = uiState.appState == AppState.READY,
                     shape = RoundedCornerShape(12.dp),
                     trailingIcon = {
-                        if (viewModel.url.isNotBlank()) {
+                        if (uiState.url.isNotBlank()) {
                             IconButton(onClick = { viewModel.onUrlChange("") }) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
@@ -196,7 +199,7 @@ fun MainScreen(
 
                 // Platform Detection Badge
                 AnimatedVisibility(
-                    visible = viewModel.detectedPlatform.isNotBlank(),
+                    visible = uiState.detectedPlatform.isNotBlank(),
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
@@ -206,7 +209,7 @@ fun MainScreen(
                         color = MaterialTheme.colorScheme.primaryContainer
                     ) {
                         Text(
-                            text = viewModel.detectedPlatform,
+                            text = uiState.detectedPlatform,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -236,15 +239,15 @@ fun MainScreen(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
-                                    if (viewModel.isAudio) MaterialTheme.colorScheme.primaryContainer
+                                    if (uiState.isAudio) MaterialTheme.colorScheme.primaryContainer
                                     else MaterialTheme.colorScheme.surface
                                 )
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             RadioButton(
-                                selected = viewModel.isAudio,
+                                selected = uiState.isAudio,
                                 onClick = { viewModel.onFormatChange(true) },
-                                enabled = viewModel.isReady,
+                                enabled = uiState.appState == AppState.READY,
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = MaterialTheme.colorScheme.primary
                                 )
@@ -267,15 +270,15 @@ fun MainScreen(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
-                                    if (!viewModel.isAudio) MaterialTheme.colorScheme.primaryContainer
+                                    if (!uiState.isAudio) MaterialTheme.colorScheme.primaryContainer
                                     else MaterialTheme.colorScheme.surface
                                 )
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             RadioButton(
-                                selected = !viewModel.isAudio,
+                                selected = !uiState.isAudio,
                                 onClick = { viewModel.onFormatChange(false) },
-                                enabled = viewModel.isReady,
+                                enabled = uiState.appState == AppState.READY,
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = MaterialTheme.colorScheme.primary
                                 )
@@ -299,7 +302,7 @@ fun MainScreen(
             item {
                 // Download Progress
                 AnimatedVisibility(
-                    visible = viewModel.isDownloading,
+                    visible = uiState.appState == AppState.DOWNLOADING,
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
@@ -310,7 +313,7 @@ fun MainScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         LinearProgressIndicator(
-                            progress = { viewModel.downloadProgress / 100f },
+                            progress = { uiState.downloadProgress / 100f },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(8.dp)
@@ -319,14 +322,14 @@ fun MainScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "${viewModel.downloadProgress.toInt()}%",
+                            text = "${uiState.downloadProgress.toInt()}%",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        if (viewModel.progressStatus.isNotBlank()) {
+                        if (uiState.progressStatus.isNotBlank()) {
                             Text(
-                                text = viewModel.progressStatus,
+                                text = uiState.progressStatus,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -339,7 +342,7 @@ fun MainScreen(
                 // Download Button
                 Button(
                     onClick = { viewModel.startDownload() },
-                    enabled = viewModel.isReady && viewModel.url.isNotBlank(),
+                    enabled = uiState.appState == AppState.READY && uiState.url.isNotBlank(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -348,7 +351,7 @@ fun MainScreen(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    when (viewModel.appState) {
+                    when (uiState.appState) {
                         AppState.DOWNLOADING -> {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
@@ -365,7 +368,7 @@ fun MainScreen(
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text(if (viewModel.appState == AppState.UPDATING) "Updating..." else "Initializing...")
+                            Text(if (uiState.appState == AppState.UPDATING) "Updating..." else "Initializing...")
                         }
                         AppState.ERROR -> {
                             Text("Retry")
@@ -381,7 +384,7 @@ fun MainScreen(
                 }
 
                 // Error retry button
-                if (viewModel.appState == AppState.ERROR) {
+                if (uiState.appState == AppState.ERROR) {
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedButton(
                         onClick = { viewModel.retryInitialization() },
@@ -392,7 +395,7 @@ fun MainScreen(
                 }
 
                 // Skip update button — visible only during yt-dlp update phase
-                if (viewModel.appState == AppState.UPDATING) {
+                if (uiState.appState == AppState.UPDATING) {
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(
                         onClick = { viewModel.skipUpdate() },
@@ -406,11 +409,11 @@ fun MainScreen(
             item {
                 // Status Message
                 Text(
-                    text = viewModel.statusMessage,
+                    text = uiState.statusMessage,
                     style = MaterialTheme.typography.bodyMedium,
                     color = when {
-                        viewModel.statusMessage.startsWith("Error") -> MaterialTheme.colorScheme.error
-                        viewModel.statusMessage.startsWith("Saved") -> MaterialTheme.colorScheme.primary
+                        uiState.statusMessage.startsWith("Error") -> MaterialTheme.colorScheme.error
+                        uiState.statusMessage.startsWith("Saved") -> MaterialTheme.colorScheme.primary
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     },
                     textAlign = TextAlign.Center,
@@ -419,7 +422,7 @@ fun MainScreen(
             }
 
             // Download History
-            if (viewModel.downloadHistory.value.isNotEmpty()) {
+            if (uiState.downloadHistory.isNotEmpty()) {
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -431,7 +434,7 @@ fun MainScreen(
                     )
                 }
 
-                items(viewModel.downloadHistory.value) { item ->
+                items(uiState.downloadHistory) { item ->
                     HistoryItem(item = item)
                 }
             }
