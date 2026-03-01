@@ -43,12 +43,12 @@ Plans:
   2. All production dependencies injected via Hilt — no manual `new` or `object` singletons for repository or data sources
   3. ViewModel exposes a single `StateFlow<DownloaderUiState>` sealed class — no scattered `mutableStateOf` fields
   4. Release build (`./gradlew assembleRelease`) succeeds and app runs correctly on device without crash from ProGuard stripping
-**Plans**: TBD
+**Plans**: 3 plans (3 waves — sequential)
 
 Plans:
-- [ ] 02-01: Bump Kotlin 2.x, Compose BOM, Coil 3.x, AGP 8.13.2, KSP, DataStore
-- [ ] 02-02: Introduce Hilt (Application, MainActivity, ViewModel, modules)
-- [ ] 02-03: Migrate ViewModel state to StateFlow sealed class
+- [ ] 02-01-PLAN.md — Bump Kotlin 2.1.21, Compose BOM 2026, KSP, remove Coil, add Hilt/lifecycle-compose deps + ProGuard rules
+- [ ] 02-02-PLAN.md — Introduce Hilt DI (Application, MainActivity, ViewModel, Repository, AppModule)
+- [ ] 02-03-PLAN.md — Migrate ViewModel state to StateFlow<DownloaderUiState> sealed class
 
 ### Phase 3: Reliability
 **Goal**: Downloads survive app backgrounding, history persists across restarts, and errors are always user-friendly
