@@ -1,15 +1,14 @@
 package com.example.yt2local
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
+import android.content.Intent
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.yt2local.data.DownloadServiceState
+import com.example.yt2local.data.DownloadStateHolder
+import com.example.yt2local.data.db.DownloadHistoryDao
+import com.example.yt2local.service.DownloadService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -22,6 +21,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -50,6 +52,8 @@ data class DownloaderUiState(
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: VideoRepository,
+    private val downloadStateHolder: DownloadStateHolder,
+    private val historyDao: DownloadHistoryDao,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val prefs = context.getSharedPreferences("yt2local_prefs", Context.MODE_PRIVATE)
@@ -57,7 +61,6 @@ class MainViewModel @Inject constructor(
     companion object {
         private const val TAG = "MainViewModel"
         private const val PREF_IS_AUDIO = "is_audio"
-        private const val NOTIFICATION_ID = 1001
     }
 
     // Cancellable job for yt-dlp update — held so skipUpdate() can cancel it
@@ -70,6 +73,65 @@ class MainViewModel @Inject constructor(
 
     init {
         initialize()
+        observeServiceState()
+        observeHistory()
+    }
+
+    private fun observeServiceState() {
+        downloadStateHolder.state.onEach { serviceState ->
+            when (serviceState) {
+                is DownloadServiceState.InProgress -> {
+                    _uiState.update { it.copy(
+                        appState = AppState.DOWNLOADING,
+                        downloadProgress = serviceState.progress,
+                        progressStatus = serviceState.status,
+                        statusMessage = serviceState.status
+                    )}
+                }
+                is DownloadServiceState.Success -> {
+                    _uiState.update { it.copy(
+                        appState = AppState.READY,
+                        downloadProgress = 0f,
+                        progressStatus = "",
+                        statusMessage = "Saved: ${serviceState.fileName}",
+                        snackbarMessage = "Saved: ${serviceState.fileName}",
+                        url = "",
+                        detectedPlatform = ""
+                    )}
+                    downloadStateHolder.state.value = DownloadServiceState.Idle
+                }
+                is DownloadServiceState.Failed -> {
+                    _uiState.update { it.copy(
+                        appState = AppState.READY,
+                        downloadProgress = 0f,
+                        progressStatus = "",
+                        statusMessage = serviceState.friendlyMessage
+                        // url and detectedPlatform NOT cleared — preserved on failure (ARCH-04)
+                    )}
+                    downloadStateHolder.state.value = DownloadServiceState.Idle
+                }
+                is DownloadServiceState.Idle -> { /* no-op */ }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun observeHistory() {
+        historyDao.getRecent()
+            .map { entities ->
+                entities.map { entity ->
+                    DownloadHistoryItem(
+                        fileName = entity.fileName,
+                        platform = entity.platform,
+                        isAudio = entity.isAudio,
+                        timestamp = entity.timestamp,
+                        mediaUri = entity.mediaUri
+                    )
+                }
+            }
+            .onEach { items ->
+                _uiState.update { it.copy(downloadHistory = items) }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun initialize() {
@@ -216,80 +278,19 @@ class MainViewModel @Inject constructor(
             statusMessage = "Downloading from ${repository.detectPlatform(extractedUrl)}..."
         )}
 
-        viewModelScope.launch {
-            val result = repository.downloadMedia(
-                url = extractedUrl,
-                isAudio = _uiState.value.isAudio,
-                onProgress = { progress ->
-                    _uiState.update { it.copy(
-                        downloadProgress = progress.progress,
-                        progressStatus = progress.status,
-                        statusMessage = if (progress.etaSeconds > 0) {
-                            val minutes = progress.etaSeconds / 60
-                            val seconds = progress.etaSeconds % 60
-                            "${progress.status} ETA: ${minutes}m ${seconds}s"
-                        } else {
-                            progress.status
-                        }
-                    )}
-                }
-            )
-
-            val stateAtCompletion = _uiState.value
-            _uiState.update { state ->
-                if (result.success) {
-                    val historyItem = DownloadHistoryItem(
-                        fileName = result.fileName ?: "Unknown",
-                        platform = stateAtCompletion.detectedPlatform,
-                        isAudio = stateAtCompletion.isAudio,
-                        timestamp = System.currentTimeMillis()
-                    )
-                    state.copy(
-                        appState = AppState.READY,
-                        downloadProgress = 0f,
-                        progressStatus = "",
-                        statusMessage = "Saved to Downloads/yt2local/${result.fileName}",
-                        snackbarMessage = "Saved: ${result.fileName}",
-                        downloadHistory = listOf(historyItem) + state.downloadHistory.take(9),
-                        url = "",
-                        detectedPlatform = ""
-                    )
-                } else {
-                    state.copy(
-                        appState = AppState.READY,
-                        downloadProgress = 0f,
-                        progressStatus = "",
-                        statusMessage = "Error: ${result.error}"
-                    )
-                }
-            }
-
-            if (result.success) {
-                // Post notification
-                postDownloadNotification(result.fileName ?: "Download complete")
-            }
+        val intent = Intent(context, DownloadService::class.java).apply {
+            putExtra(DownloadService.EXTRA_URL, extractedUrl)
+            putExtra(DownloadService.EXTRA_IS_AUDIO, currentState.isAudio)
         }
-    }
-
-    private fun postDownloadNotification(fileName: String) {
-        // Check notification permission on Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                return
-            }
+        try {
+            context.startForegroundService(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start download service", e)
+            _uiState.update { it.copy(
+                appState = AppState.READY,
+                statusMessage = "Failed to start download. Please try again."
+            )}
         }
-
-        val notification = NotificationCompat.Builder(context, YT2LocalApplication.CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Download Complete")
-            .setContentText(fileName)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .build()
-
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
     }
 
     fun retryInitialization() {
@@ -300,8 +301,6 @@ class MainViewModel @Inject constructor(
     /**
      * Called from UI when user taps "Skip update" during UPDATING state.
      * Cancels the yt-dlp update download and transitions to READY immediately.
-     * The blocking HTTP call may continue briefly in the background, but the
-     * UI becomes responsive immediately. Safe to call from main thread (onClick context).
      */
     fun skipUpdate() {
         updateJob?.cancel()
@@ -352,5 +351,6 @@ data class DownloadHistoryItem(
     val fileName: String,
     val platform: String,
     val isAudio: Boolean,
-    val timestamp: Long
+    val timestamp: Long,
+    val mediaUri: String? = null
 )
