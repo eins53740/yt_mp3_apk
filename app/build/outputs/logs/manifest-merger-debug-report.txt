@@ -1,6 +1,7 @@
 -- Merging decision tree log ---
 manifest
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ADDED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:2:1-39:12
 INJECTED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:2:1-39:12
 INJECTED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:2:1-39:12
@@ -72,6 +73,8 @@ MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\bfsd\.gradle\caches\9.2.1\
 MERGED from [androidx.exifinterface:exifinterface:1.3.6] C:\Users\bfsd\.gradle\caches\9.2.1\transforms\3d17a0d42dd20d2214a0ee743fbc6dfa\workspace\transformed\exifinterface-1.3.6\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\bfsd\.gradle\caches\9.2.1\transforms\ff5e6c161f36a6919cafbac9885c3477\workspace\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
 =======
+=======
+>>>>>>> Stashed changes
 ADDED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:2:1-40:12
 INJECTED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:2:1-40:12
 INJECTED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:2:1-40:12
@@ -179,6 +182,7 @@ ADDED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifes
 		ADDED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:9:22-74
 application
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ADDED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:11:5-37:19
 INJECTED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:11:5-37:19
 MERGED from [androidx.compose.ui:ui-test-manifest:1.5.4] C:\Users\bfsd\.gradle\caches\9.2.1\transforms\72add91b49bb397b8be0eab45ee30e88\workspace\transformed\ui-test-manifest-1.5.4\AndroidManifest.xml:22:5-26:19
@@ -198,6 +202,8 @@ MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\bfsd\.gr
 MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\bfsd\.gradle\caches\9.2.1\transforms\620383c401da284d4af0c53a8eb91a4d\workspace\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
 MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\bfsd\.gradle\caches\9.2.1\transforms\620383c401da284d4af0c53a8eb91a4d\workspace\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
 =======
+=======
+>>>>>>> Stashed changes
 ADDED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:11:5-38:19
 INJECTED from C:\Users\bfsd\Documents\GitHub\yt_mp3_apk\app\src\main\AndroidManifest.xml:11:5-38:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.5.4] C:\Users\bfsd\.gradle\caches\8.13\transforms\97be0f73926c5b73b2787dbb08efa2a9\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19

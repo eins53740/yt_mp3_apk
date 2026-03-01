@@ -14,8 +14,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // YoutubeDL initialization is now handled in MainViewModel
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
         var sharedUrl: String? = null

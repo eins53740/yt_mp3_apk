@@ -7,7 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import kotlinx.coroutines.Dispatchers
+=======
+import kotlinx.coroutines.flow.StateFlow
+>>>>>>> Stashed changes
 =======
 import kotlinx.coroutines.flow.StateFlow
 >>>>>>> Stashed changes
@@ -23,6 +27,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var statusMessage by mutableStateOf("Initializing...")
     var isDownloading by mutableStateOf(false)
     var downloadHistory = mutableStateOf<List<String>>(emptyList())
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     var isInitialized by mutableStateOf(false)
 
@@ -45,6 +50,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     isInitialized = false
                     statusMessage = "Init Error: ${e.message}\n$stackTrace"
 =======
+=======
+>>>>>>> Stashed changes
     
     // Track YoutubeDL initialization status
     val isYoutubeDLInitialized: StateFlow<Boolean> = YT2LocalApplication.isYoutubeDLInitialized
@@ -64,6 +71,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             YT2LocalApplication.initializationError.collect { error ->
                 if (error != null) {
                     statusMessage = "Error: $error"
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                 }
             }

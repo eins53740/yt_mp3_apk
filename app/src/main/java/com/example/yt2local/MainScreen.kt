@@ -71,7 +71,11 @@ fun MainScreen(
         Button(
             onClick = { viewModel.startDownload() },
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             enabled = !viewModel.isDownloading && viewModel.isInitialized,
+=======
+            enabled = !viewModel.isDownloading && viewModel.isYoutubeDLInitialized.value,
+>>>>>>> Stashed changes
 =======
             enabled = !viewModel.isDownloading && viewModel.isYoutubeDLInitialized.value,
 >>>>>>> Stashed changes
@@ -86,7 +90,11 @@ fun MainScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Processing...")
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             } else if (!viewModel.isInitialized) {
+=======
+            } else if (!viewModel.isYoutubeDLInitialized.value) {
+>>>>>>> Stashed changes
 =======
             } else if (!viewModel.isYoutubeDLInitialized.value) {
 >>>>>>> Stashed changes
