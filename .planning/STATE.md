@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T21:54:10.523Z"
+last_updated: "2026-03-01T21:58:47.286Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 3 of 4 (Reliability)
-Plan: 2 of 3 in current phase
-Status: Phase 03-reliability in progress
-Last activity: 2026-03-01 — Completed 03-02 (Foreground service infrastructure: DownloadStateHolder, DownloadService, Android 14 three-part declaration)
+Plan: 3 of 3 in current phase (COMPLETE)
+Status: Phase 03-reliability complete — all 3 plans done
+Last activity: 2026-03-01 — Completed 03-03 (ViewModel-Service-Room wiring: service delegation, Room history, clickable history items, retry UX)
 
-Progress: [███████░░░] 75%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Progress: [███████░░░] 75%
 *Updated after each plan completion*
 | Phase 03-reliability P01 | 3 | 2 tasks | 7 files |
 | Phase 03-reliability P02 | 3 | 2 tasks | 6 files |
+| Phase 03-reliability P03 | 4 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,9 @@ Recent decisions affecting current work:
 - [03-02]: Service does NOT reset state to Idle — ViewModel is responsible to prevent race where ViewModel misses terminal result
 - [03-02]: START_NOT_STICKY — service should not restart if killed (stale download would be invisible to user)
 - [03-02]: serviceScope = SupervisorJob + Dispatchers.IO — survives ViewModel destruction, cancelled only in onDestroy
+- [03-03]: ViewModel resets DownloadStateHolder to Idle after Success/Failed — prevents stale state replay if ViewModel recreated while service state is terminal
+- [03-03]: Error color detection uses contains() checks matching parseError() output patterns — not just startsWith(Error)
+- [03-03]: Retry button derives condition from existing READY + url + statusMessage signals — no extra state field needed
 
 ### Pending Todos
 
@@ -104,5 +108,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 03-02-PLAN.md (Foreground service infrastructure — DownloadStateHolder, DownloadService, Android 14 three-part declaration)
+Stopped at: Completed 03-03-PLAN.md (ViewModel-Service-Room wiring — service delegation, Room history, clickable items, retry UX)
 Resume file: None
