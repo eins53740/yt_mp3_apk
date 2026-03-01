@@ -46,7 +46,7 @@ Plans:
 **Plans**: 3 plans (3 waves — sequential)
 
 Plans:
-- [ ] 02-01-PLAN.md — Bump Kotlin 2.1.21, Compose BOM 2026, KSP, remove Coil, add Hilt/lifecycle-compose deps + ProGuard rules
+- [x] 02-01-PLAN.md — AGP 9.0.1, Gradle 9.3.1, Kotlin 2.2.10, KSP 2.3.6, Hilt 2.59.2 plugin infrastructure, remove Coil (completed 2026-03-01)
 - [ ] 02-02-PLAN.md — Introduce Hilt DI (Application, MainActivity, ViewModel, Repository, AppModule)
 - [ ] 02-03-PLAN.md — Migrate ViewModel state to StateFlow<DownloaderUiState> sealed class
 
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Crash Fix | 2/2 | Complete   | 2026-02-27 |
-| 2. Foundation | 0/3 | Not started | - |
+| 1. Crash Fix | 2/2 | Complete | 2026-02-27 |
+| 2. Foundation | 1/3 | In progress | - |
 | 3. Reliability | 0/3 | Not started | - |
 | 4. Power Features | 0/3 | Not started | - |

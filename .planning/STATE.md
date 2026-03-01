@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-02-27T16:21:09.072Z"
+status: in_progress
+last_updated: "2026-03-01T21:07:50Z"
 progress:
-  total_phases: 1
+  total_phases: 4
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 8
+  completed_plans: 3
 ---
 
 # Project State
@@ -18,32 +18,33 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Sharing a URL from any app instantly downloads it as an MP3 with zero taps
-**Current focus:** Phase 1 — Crash Fix
+**Current focus:** Phase 2 — Foundation (dependency modernization + Hilt DI)
 
 ## Current Position
 
-Phase: 1 of 4 (Crash Fix)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-27 — Completed 01-02 (skip update button: cancellable updateJob + skipUpdate())
+Phase: 2 of 4 (Foundation)
+Plan: 1 of 2 in current phase
+Status: Plan complete — ready for 02-02
+Last activity: 2026-03-01 — Completed 02-01 (build system modernization: AGP 9.0.1, Gradle 9.3.1, Kotlin 2.2.10, KSP, Hilt plugin infrastructure)
 
-Progress: [██░░░░░░░░] 20%
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
+- Total plans completed: 3
 - Average duration: 2 min
-- Total execution time: ~0.07 hours
+- Total execution time: ~0.10 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-crash-fix | 2 | 4 min | 2 min |
+| 02-foundation | 1 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-02 (2 min)
+- Last 5 plans: 01-01 (2 min), 01-02 (2 min), 02-01 (2 min)
 - Trend: Consistent
 
 *Updated after each plan completion*
@@ -64,6 +65,12 @@ Recent decisions affecting current work:
 - [01-02]: updateJob?.join() in parent coroutine to await cancellable child job (withTimeout won't interrupt JVM-blocking HTTP calls)
 - [01-02]: State guard (if appState == UPDATING) before setting READY prevents race between cancel path and normal completion
 - [01-02]: skipUpdate() mutates state directly on main thread — no withContext needed for Button onClick lambdas
+- [02-01]: AGP 9.0 built-in Kotlin — remove standalone org.jetbrains.kotlin.android plugin (keeping causes build error)
+- [02-01]: KSP over kapt — kapt deprecated in AGP 9.0; ksp() used for Hilt annotation processing
+- [02-01]: Kotlin 2.2.10 (not 2.3.x) — most conservative 2.x stable branch; AGP 9.0 minimum
+- [02-01]: KSP 2.3.6 declared independently — decoupled from Kotlin version since KSP 2.3.0
+- [02-01]: Remove composeOptions block — replaced by compose-compiler plugin (org.jetbrains.kotlin.plugin.compose)
+- [02-01]: Remove coil — no AsyncImage or rememberAsyncImagePainter usage exists in source
 
 ### Pending Todos
 
@@ -78,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-27
-Stopped at: Completed 01-02-PLAN.md (skip update button — cancellable updateJob + skipUpdate())
+Last session: 2026-03-01
+Stopped at: Completed 02-01-PLAN.md (build system modernization — AGP 9.0.1, Gradle 9.3.1, Kotlin 2.2.10, KSP 2.3.6, Hilt 2.59.2 plugin infrastructure)
 Resume file: None

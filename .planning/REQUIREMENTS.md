@@ -29,7 +29,7 @@ Requirements for this refactoring milestone. Each maps to roadmap phases.
 
 ### Modernization
 
-- [ ] **MOD-01**: Dependencies updated — Kotlin 2.x, Compose BOM 2026, Coil 3.x, KSP
+- [x] **MOD-01**: Dependencies updated — Kotlin 2.2.10, Compose BOM 2026.02.01, KSP 2.3.6, Hilt 2.59.2 (completed 2026-03-01)
 - [ ] **MOD-02**: Audio quality picker — user can choose bitrate (128/192/320 kbps)
 - [ ] **MOD-03**: Video quality picker — user can choose resolution (720p/1080p/Best)
 
@@ -77,7 +77,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REL-02 | Phase 3 | Pending |
 | REL-03 | Phase 4 | Pending |
 | REL-04 | Phase 3 | Pending |
-| MOD-01 | Phase 2 | Pending |
+| MOD-01 | Phase 2 | Complete |
 | MOD-02 | Phase 4 | Pending |
 | MOD-03 | Phase 4 | Pending |
 
@@ -88,4 +88,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-02-27 after roadmap creation*
+*Last updated: 2026-03-01 after 02-01 completion (MOD-01 marked complete)*
