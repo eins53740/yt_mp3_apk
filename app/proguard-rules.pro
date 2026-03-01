@@ -50,3 +50,13 @@
 -dontwarn org.python.**
 -dontwarn org.apache.**
 -dontwarn javax.**
+
+# Hilt DI — prevent R8 from stripping @HiltViewModel constructors (known AGP 8.9+ bug)
+# See: https://github.com/google/dagger/issues/4739
+-keepnames @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel
+-keep class dagger.hilt.** { *; }
+-keep class javax.inject.** { *; }
+-keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }
+
+# Keep DownloaderUiState data class (created in Plan 03)
+-keepclassmembers class com.example.yt2local.DownloaderUiState { *; }
