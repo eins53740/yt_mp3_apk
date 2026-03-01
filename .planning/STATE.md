@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T21:24:58.072Z"
+last_updated: "2026-03-01T21:50:03.774Z"
 progress:
-  total_phases: 2
+  total_phases: 3
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 8
+  completed_plans: 6
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Sharing a URL from any app instantly downloads it as an MP3 with zero taps
-**Current focus:** Phase 2 — Foundation (dependency modernization + Hilt DI)
+**Current focus:** Phase 3 — Reliability (Room DB, foreground service, download queue)
 
 ## Current Position
 
-Phase: 2 of 4 (Foundation)
-Plan: 3 of 3 in current phase — PHASE COMPLETE
-Status: Phase 02-foundation complete — ready for Phase 03
-Last activity: 2026-03-01 — Completed 02-03 (StateFlow migration: DownloaderUiState data class, MutableStateFlow, collectAsStateWithLifecycle)
+Phase: 3 of 4 (Reliability)
+Plan: 1 of 3 in current phase
+Status: Phase 03-reliability in progress
+Last activity: 2026-03-01 — Completed 03-01 (Room database infrastructure: Entity, DAO, Database, Hilt provisions)
 
-Progress: [█████░░░░░] 56%
+Progress: [██████░░░░] 63%
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress: [█████░░░░░] 56%
 - Trend: Consistent
 
 *Updated after each plan completion*
+| Phase 03-reliability P01 | 3 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,10 @@ Recent decisions affecting current work:
 - [02-03]: MutableStateFlow.update{} from any dispatcher — all withContext(Dispatchers.Main) wrappers around state mutations removed
 - [02-03]: updateStatus() converted from suspend to regular fun — no Main dispatcher required for StateFlow updates
 - [02-03]: startDownload() captures stateAtCompletion before final update to avoid TOCTOU in history item creation
+- [03-01]: Room 2.8.4 with KSP annotation processing — KSP already configured for Hilt, no additional plugin needed
+- [03-01]: exportSchema=false — no migration plan for v1, suppresses schema export warning
+- [03-01]: mediaUri nullable — content:// URI capture can fail; null is valid and safe
+- [03-01]: pruneOld() deletes beyond top-10 by timestamp DESC — matches existing in-memory take(9)+1 behavior
 
 ### Pending Todos
 
@@ -94,5 +99,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-03-PLAN.md (StateFlow migration — DownloaderUiState, MutableStateFlow.update{}, collectAsStateWithLifecycle in MainScreen)
+Stopped at: Completed 03-01-PLAN.md (Room database infrastructure — DownloadHistoryEntity, DownloadHistoryDao, AppDatabase, Hilt provisions)
 Resume file: None
