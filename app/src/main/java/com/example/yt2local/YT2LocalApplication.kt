@@ -18,6 +18,9 @@ class YT2LocalApplication : Application() {
     
     companion object {
         private const val TAG = "YT2LocalApp"
+        private val _isInitializing = MutableStateFlow(false)
+        val isInitializing: StateFlow<Boolean> = _isInitializing
+
         private val _isYoutubeDLInitialized = MutableStateFlow(false)
         val isYoutubeDLInitialized: StateFlow<Boolean> = _isYoutubeDLInitialized
         
@@ -30,8 +33,19 @@ class YT2LocalApplication : Application() {
         Log.d(TAG, "Application onCreate() called")
         initializeYoutubeDL()
     }
-    
+
+    fun retryInitialization() {
+        Log.d(TAG, "Retry initialization requested")
+        initializeYoutubeDL()
+    }
+
     private fun initializeYoutubeDL() {
+        if (_isYoutubeDLInitialized.value || _isInitializing.value) {
+            return
+        }
+        _isInitializing.value = true
+        _initializationError.value = null
+
         applicationScope.launch(Dispatchers.IO) {
             try {
                 Log.d(TAG, "Starting YoutubeDL initialization...")
@@ -47,7 +61,7 @@ class YT2LocalApplication : Application() {
                 
                 // Update YoutubeDL to latest version (optional but recommended)
                 // YoutubeDL.getInstance().updateYoutubeDL(applicationContext)
-                
+
                 _isYoutubeDLInitialized.value = true
                 _initializationError.value = null
             } catch (e: YoutubeDLException) {
@@ -60,6 +74,8 @@ class YT2LocalApplication : Application() {
                 e.printStackTrace()
                 _isYoutubeDLInitialized.value = false
                 _initializationError.value = e.message ?: "Unknown initialization error"
+            } finally {
+                _isInitializing.value = false
             }
         }
     }

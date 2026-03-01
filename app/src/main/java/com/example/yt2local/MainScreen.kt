@@ -16,6 +16,8 @@ fun MainScreen(
     initialUrl: String? = null,
     viewModel: MainViewModel = viewModel()
 ) {
+    val hasInitError = viewModel.initializationError.value != null
+
     LaunchedEffect(initialUrl) {
         if (initialUrl != null) {
             viewModel.onUrlChange(initialUrl)
@@ -70,15 +72,7 @@ fun MainScreen(
 
         Button(
             onClick = { viewModel.startDownload() },
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            enabled = !viewModel.isDownloading && viewModel.isInitialized,
-=======
             enabled = !viewModel.isDownloading && viewModel.isYoutubeDLInitialized.value,
->>>>>>> Stashed changes
-=======
-            enabled = !viewModel.isDownloading && viewModel.isYoutubeDLInitialized.value,
->>>>>>> Stashed changes
             modifier = Modifier.fillMaxWidth()
         ) {
             if (viewModel.isDownloading) {
@@ -89,15 +83,7 @@ fun MainScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Processing...")
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            } else if (!viewModel.isInitialized) {
-=======
-            } else if (!viewModel.isYoutubeDLInitialized.value) {
->>>>>>> Stashed changes
-=======
-            } else if (!viewModel.isYoutubeDLInitialized.value) {
->>>>>>> Stashed changes
+            } else if (viewModel.isInitializing.value) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -105,6 +91,8 @@ fun MainScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Initializing...")
+            } else if (!viewModel.isYoutubeDLInitialized.value) {
+                Text("Not Ready")
             } else {
                 Text("Convert & Download")
             }
@@ -117,6 +105,16 @@ fun MainScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = if (viewModel.statusMessage.startsWith("Error")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
         )
+
+        if (hasInitError && !viewModel.isYoutubeDLInitialized.value && !viewModel.isInitializing.value) {
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedButton(
+                onClick = { viewModel.retryInitialization() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Retry Initialization")
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 

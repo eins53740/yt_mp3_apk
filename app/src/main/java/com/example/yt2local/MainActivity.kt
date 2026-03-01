@@ -12,15 +12,6 @@ import androidx.compose.ui.Modifier
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        // YoutubeDL initialization is now handled in MainViewModel
-
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         var sharedUrl: String? = null
         if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {
             sharedUrl = intent.getStringExtra(Intent.EXTRA_TEXT)
