@@ -6,7 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+<<<<<<< Updated upstream
 import kotlinx.coroutines.Dispatchers
+=======
+import kotlinx.coroutines.flow.StateFlow
+>>>>>>> Stashed changes
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.yausername.youtubedl_android.YoutubeDL
@@ -19,6 +23,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var statusMessage by mutableStateOf("Initializing...")
     var isDownloading by mutableStateOf(false)
     var downloadHistory = mutableStateOf<List<String>>(emptyList())
+<<<<<<< Updated upstream
     var isInitialized by mutableStateOf(false)
 
     init {
@@ -39,6 +44,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 withContext(Dispatchers.Main) {
                     isInitialized = false
                     statusMessage = "Init Error: ${e.message}\n$stackTrace"
+=======
+    
+    // Track YoutubeDL initialization status
+    val isYoutubeDLInitialized: StateFlow<Boolean> = YT2LocalApplication.isYoutubeDLInitialized
+    val initializationError: StateFlow<String?> = YT2LocalApplication.initializationError
+    
+    init {
+        // Monitor initialization status
+        viewModelScope.launch {
+            YT2LocalApplication.isYoutubeDLInitialized.collect { initialized ->
+                if (initialized) {
+                    statusMessage = "Ready"
+                }
+            }
+        }
+        
+        viewModelScope.launch {
+            YT2LocalApplication.initializationError.collect { error ->
+                if (error != null) {
+                    statusMessage = "Error: $error"
+>>>>>>> Stashed changes
                 }
             }
         }
@@ -53,6 +79,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startDownload() {
+        if (!isYoutubeDLInitialized.value) {
+            statusMessage = "Please wait, initializing..."
+            return
+        }
+        
         if (url.isBlank()) {
             statusMessage = "Please enter a URL"
             return

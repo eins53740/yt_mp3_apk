@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +15,14 @@ import java.io.FileInputStream
 
 class YoutubeRepository(private val context: Context) {
 
+    companion object {
+        private const val TAG = "YoutubeRepository"
+    }
+
     suspend fun downloadVideo(url: String, isAudio: Boolean): Result<String> = withContext(Dispatchers.IO) {
         try {
+            Log.d(TAG, "Starting download for URL: $url, isAudio: $isAudio")
+            
             // 1. Download to internal storage first
             val tempDir = File(context.filesDir, "yt_temp")
             if (!tempDir.exists()) tempDir.mkdirs()
@@ -37,6 +44,7 @@ class YoutubeRepository(private val context: Context) {
                 request.addOption("--merge-output-format", "mp4")
             }
 
+            Log.d(TAG, "Calling YoutubeDL.getInstance().execute()...")
             val response = YoutubeDL.getInstance().execute(request) { progress, etaInSeconds, line ->
                 println("Progress: $progress, ETA: $etaInSeconds")
             }
@@ -73,6 +81,7 @@ class YoutubeRepository(private val context: Context) {
 
             Result.success(fileName)
         } catch (e: Exception) {
+            Log.e(TAG, "Error during download: ${e.message}", e)
             e.printStackTrace()
             Result.failure(e)
         }

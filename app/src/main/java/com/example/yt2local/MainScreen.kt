@@ -70,7 +70,11 @@ fun MainScreen(
 
         Button(
             onClick = { viewModel.startDownload() },
+<<<<<<< Updated upstream
             enabled = !viewModel.isDownloading && viewModel.isInitialized,
+=======
+            enabled = !viewModel.isDownloading && viewModel.isYoutubeDLInitialized.value,
+>>>>>>> Stashed changes
             modifier = Modifier.fillMaxWidth()
         ) {
             if (viewModel.isDownloading) {
@@ -81,7 +85,11 @@ fun MainScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Processing...")
+<<<<<<< Updated upstream
             } else if (!viewModel.isInitialized) {
+=======
+            } else if (!viewModel.isYoutubeDLInitialized.value) {
+>>>>>>> Stashed changes
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     color = MaterialTheme.colorScheme.onPrimary,

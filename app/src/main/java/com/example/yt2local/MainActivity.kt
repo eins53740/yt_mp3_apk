@@ -8,15 +8,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.yausername.youtubedl_android.YoutubeDL
-import com.yausername.youtubedl_android.YoutubeDLException
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+<<<<<<< Updated upstream
         // YoutubeDL initialization is now handled in MainViewModel
 
+=======
+>>>>>>> Stashed changes
         var sharedUrl: String? = null
         if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {
             sharedUrl = intent.getStringExtra(Intent.EXTRA_TEXT)
