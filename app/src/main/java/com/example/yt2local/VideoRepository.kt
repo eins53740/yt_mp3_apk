@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import javax.inject.Inject
 
 data class DownloadProgress(
     val progress: Float = 0f,
@@ -29,7 +30,7 @@ data class DownloadResult(
     val videoTitle: String? = null
 )
 
-class VideoRepository(private val context: Context) {
+class VideoRepository @Inject constructor(private val context: Context) {
 
     companion object {
         private const val TAG = "VideoRepository"
