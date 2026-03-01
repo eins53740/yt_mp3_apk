@@ -20,7 +20,17 @@
       "Bash(reg query \"HKLM\\\\SOFTWARE\\\\JavaSoft\\\\Java Development Kit\")",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Skill(gsd:new-project)",
+      "Bash(node:*)",
+      "Bash(mkdir:*)",
+      "WebSearch",
+      "WebFetch(domain:xdaforums.com)",
+      "WebFetch(domain:ytdlnis.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:mvnrepository.com)",
+      "Skill(gsd:plan-phase)",
+      "Skill(gsd:execute-phase)"
     ]
   }
 }
