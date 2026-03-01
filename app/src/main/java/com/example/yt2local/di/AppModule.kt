@@ -3,6 +3,7 @@ package com.example.yt2local.di
 import android.content.Context
 import androidx.room.Room
 import com.example.yt2local.VideoRepository
+import com.example.yt2local.data.DownloadStateHolder
 import com.example.yt2local.data.db.AppDatabase
 import com.example.yt2local.data.db.DownloadHistoryDao
 import dagger.Module
@@ -36,5 +37,11 @@ object AppModule {
     @Singleton
     fun provideDownloadHistoryDao(db: AppDatabase): DownloadHistoryDao {
         return db.downloadHistoryDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDownloadStateHolder(): DownloadStateHolder {
+        return DownloadStateHolder()
     }
 }
