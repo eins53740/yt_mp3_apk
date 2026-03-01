@@ -49,7 +49,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -412,13 +416,37 @@ fun MainScreen(
                     text = uiState.statusMessage,
                     style = MaterialTheme.typography.bodyMedium,
                     color = when {
-                        uiState.statusMessage.startsWith("Error") -> MaterialTheme.colorScheme.error
+                        uiState.statusMessage.startsWith("Error") ||
+                        uiState.statusMessage.contains("failed", ignoreCase = true) ||
+                        uiState.statusMessage.contains("not supported", ignoreCase = true) ||
+                        uiState.statusMessage.contains("unavailable", ignoreCase = true) ||
+                        uiState.statusMessage.contains("denied", ignoreCase = true) ||
+                        uiState.statusMessage.contains("not found", ignoreCase = true) ->
+                            MaterialTheme.colorScheme.error
                         uiState.statusMessage.startsWith("Saved") -> MaterialTheme.colorScheme.primary
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     },
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                // Retry button for download failures — URL is preserved (ARCH-04)
+                if (uiState.appState == AppState.READY &&
+                    uiState.url.isNotBlank() &&
+                    (uiState.statusMessage.contains("failed", ignoreCase = true) ||
+                     uiState.statusMessage.contains("not supported", ignoreCase = true) ||
+                     uiState.statusMessage.contains("unavailable", ignoreCase = true) ||
+                     uiState.statusMessage.contains("denied", ignoreCase = true) ||
+                     uiState.statusMessage.contains("not found", ignoreCase = true) ||
+                     uiState.statusMessage.startsWith("Error"))) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { viewModel.startDownload() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Retry Download")
+                    }
+                }
             }
 
             // Download History
@@ -474,8 +502,25 @@ private fun looksLikeVideoUrl(text: String): Boolean {
 
 @Composable
 private fun HistoryItem(item: DownloadHistoryItem) {
+    val context = LocalContext.current
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                item.mediaUri?.let { uriString ->
+                    try {
+                        val uri = Uri.parse(uriString)
+                        val mime = if (item.isAudio) "audio/*" else "video/*"
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(uri, mime)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(Intent.createChooser(intent, "Open with"))
+                    } catch (e: Exception) {
+                        // File may have been deleted or URI invalid — non-fatal
+                    }
+                }
+            },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
