@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-01T21:07:50Z"
+last_updated: "2026-03-01T21:12:54Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -23,28 +23,28 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 2 of 4 (Foundation)
-Plan: 1 of 2 in current phase
-Status: Plan complete — ready for 02-02
-Last activity: 2026-03-01 — Completed 02-01 (build system modernization: AGP 9.0.1, Gradle 9.3.1, Kotlin 2.2.10, KSP, Hilt plugin infrastructure)
+Plan: 2 of 2 in current phase — PHASE COMPLETE
+Status: Phase 02-foundation complete — ready for Phase 03
+Last activity: 2026-03-01 — Completed 02-02 (Hilt DI wiring: @HiltAndroidApp, @AndroidEntryPoint, @HiltViewModel, @Inject constructor, AppModule)
 
-Progress: [███░░░░░░░] 30%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 2 min
-- Total execution time: ~0.10 hours
+- Total execution time: ~0.13 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-crash-fix | 2 | 4 min | 2 min |
-| 02-foundation | 1 | 2 min | 2 min |
+| 02-foundation | 2 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-02 (2 min), 02-01 (2 min)
+- Last 5 plans: 01-01 (2 min), 01-02 (2 min), 02-01 (2 min), 02-02 (2 min)
 - Trend: Consistent
 
 *Updated after each plan completion*
@@ -71,6 +71,10 @@ Recent decisions affecting current work:
 - [02-01]: KSP 2.3.6 declared independently — decoupled from Kotlin version since KSP 2.3.0
 - [02-01]: Remove composeOptions block — replaced by compose-compiler plugin (org.jetbrains.kotlin.plugin.compose)
 - [02-01]: Remove coil — no AsyncImage or rememberAsyncImagePainter usage exists in source
+- [02-02]: VideoRepository scoped as @Singleton via AppModule — holds no mutable state, single instance correct
+- [02-02]: @ApplicationContext used for context injection — avoids Activity context leaks in singletons
+- [02-02]: by viewModels() kept in MainActivity (not hiltViewModel()) — correct for Activities, hiltViewModel() is for Composables
+- [02-02]: ViewModel extends plain ViewModel not AndroidViewModel — @ApplicationContext injection replaces getApplication() need entirely
 
 ### Pending Todos
 
@@ -86,5 +90,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-01-PLAN.md (build system modernization — AGP 9.0.1, Gradle 9.3.1, Kotlin 2.2.10, KSP 2.3.6, Hilt 2.59.2 plugin infrastructure)
+Stopped at: Completed 02-02-PLAN.md (Hilt DI wiring — @HiltAndroidApp, @AndroidEntryPoint, @HiltViewModel, AppModule, @Inject constructor on VideoRepository)
 Resume file: None
