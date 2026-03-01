@@ -27,7 +27,8 @@ data class DownloadResult(
     val success: Boolean,
     val fileName: String? = null,
     val error: String? = null,
-    val videoTitle: String? = null
+    val videoTitle: String? = null,
+    val mediaUri: String? = null
 )
 
 class VideoRepository @Inject constructor(private val context: Context) {
@@ -226,7 +227,8 @@ class VideoRepository @Inject constructor(private val context: Context) {
             DownloadResult(
                 success = true,
                 fileName = fileName,
-                videoTitle = videoTitle
+                videoTitle = videoTitle,
+                mediaUri = uri.toString()
             )
 
         } catch (e: Exception) {

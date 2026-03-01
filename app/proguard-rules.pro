@@ -64,3 +64,14 @@
 # Keep Room Entity and database classes
 -keepclassmembers class com.example.yt2local.data.db.DownloadHistoryEntity { *; }
 -keep class com.example.yt2local.data.db.** { *; }
+
+# Phase 3: Foreground service state classes
+-keepclassmembers class com.example.yt2local.data.DownloadServiceState { *; }
+-keepclassmembers class com.example.yt2local.data.DownloadServiceState$Idle { *; }
+-keepclassmembers class com.example.yt2local.data.DownloadServiceState$InProgress { *; }
+-keepclassmembers class com.example.yt2local.data.DownloadServiceState$Success { *; }
+-keepclassmembers class com.example.yt2local.data.DownloadServiceState$Failed { *; }
+
+# Room
+-keep class * extends androidx.room.RoomDatabase { *; }
+-dontwarn androidx.room.**
