@@ -22,7 +22,7 @@ Requirements for this refactoring milestone. Each maps to roadmap phases.
 
 ### Reliability
 
-- [ ] **REL-01**: Downloads continue when user backgrounds app (foreground service with notification)
+- [x] **REL-01**: Downloads continue when user backgrounds app (foreground service with notification)
 - [x] **REL-02**: Download history persists across app restarts (Room database)
 - [ ] **REL-03**: User can share multiple URLs and they queue for sequential download
 - [x] **REL-04**: User can tap history item to open/play the downloaded file
@@ -73,7 +73,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ARCH-02 | Phase 2 | Complete |
 | ARCH-03 | Phase 3 | Pending |
 | ARCH-04 | Phase 3 | Pending |
-| REL-01 | Phase 3 | Pending |
+| REL-01 | Phase 3 | Complete |
 | REL-02 | Phase 3 | Complete |
 | REL-03 | Phase 4 | Pending |
 | REL-04 | Phase 3 | Complete |

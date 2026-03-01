@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T21:50:03.774Z"
+last_updated: "2026-03-01T21:54:10.523Z"
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 3 of 4 (Reliability)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Phase 03-reliability in progress
-Last activity: 2026-03-01 — Completed 03-01 (Room database infrastructure: Entity, DAO, Database, Hilt provisions)
+Last activity: 2026-03-01 — Completed 03-02 (Foreground service infrastructure: DownloadStateHolder, DownloadService, Android 14 three-part declaration)
 
-Progress: [██████░░░░] 63%
+Progress: [███████░░░] 75%
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [██████░░░░] 63%
 
 *Updated after each plan completion*
 | Phase 03-reliability P01 | 3 | 2 tasks | 7 files |
+| Phase 03-reliability P02 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,10 @@ Recent decisions affecting current work:
 - [03-01]: exportSchema=false — no migration plan for v1, suppresses schema export warning
 - [03-01]: mediaUri nullable — content:// URI capture can fail; null is valid and safe
 - [03-01]: pruneOld() deletes beyond top-10 by timestamp DESC — matches existing in-memory take(9)+1 behavior
+- [03-02]: DownloadStateHolder uses MutableStateFlow (not bound service) — avoids ServiceConnection complexity while keeping architecture testable
+- [03-02]: Service does NOT reset state to Idle — ViewModel is responsible to prevent race where ViewModel misses terminal result
+- [03-02]: START_NOT_STICKY — service should not restart if killed (stale download would be invisible to user)
+- [03-02]: serviceScope = SupervisorJob + Dispatchers.IO — survives ViewModel destruction, cancelled only in onDestroy
 
 ### Pending Todos
 
@@ -99,5 +104,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 03-01-PLAN.md (Room database infrastructure — DownloadHistoryEntity, DownloadHistoryDao, AppDatabase, Hilt provisions)
+Stopped at: Completed 03-02-PLAN.md (Foreground service infrastructure — DownloadStateHolder, DownloadService, Android 14 three-part declaration)
 Resume file: None
