@@ -188,19 +188,19 @@ class MainViewModel @Inject constructor(
         try {
             val updateResult = YoutubeDL.getInstance().updateYoutubeDL(context)
 
-            when (updateResult.status) {
+            when (updateResult) {
                 YoutubeDL.UpdateStatus.DONE -> {
-                    val version = updateResult.version ?: "Updated"
+                    val version = YoutubeDL.getInstance().version(context) ?: "Updated"
                     _uiState.update { it.copy(ytDlpVersion = version) }
                     Log.d(TAG, "yt-dlp updated to: $version")
                 }
                 YoutubeDL.UpdateStatus.ALREADY_UP_TO_DATE -> {
-                    val version = updateResult.version ?: "Latest"
+                    val version = YoutubeDL.getInstance().version(context) ?: "Latest"
                     _uiState.update { it.copy(ytDlpVersion = version) }
                     Log.d(TAG, "yt-dlp already up to date: $version")
                 }
                 else -> {
-                    Log.w(TAG, "yt-dlp update status: ${updateResult.status}")
+                    Log.w(TAG, "yt-dlp update status: $updateResult")
                 }
             }
         } catch (e: Exception) {

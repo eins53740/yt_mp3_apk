@@ -12,13 +12,13 @@
       "filters": [
         {
           "filterType": "ABI",
-          "value": "arm64-v8a"
+          "value": "x86_64"
         }
       ],
       "attributes": [],
-      "versionCode": 1,
-      "versionName": "1.0",
-      "outputFile": "arm64-v8a/AndroidManifest.xml"
+      "versionCode": 2,
+      "versionName": "2.0",
+      "outputFile": "x86_64/AndroidManifest.xml"
     }
   ],
   "elementType": "File"

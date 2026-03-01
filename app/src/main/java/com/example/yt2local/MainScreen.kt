@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -193,7 +194,7 @@ fun MainScreen(
                                 }
                             }) {
                                 Icon(
-                                    painter = painterResource(id = android.R.drawable.ic_menu_paste),
+                                    imageVector = Icons.Default.ContentPaste,
                                     contentDescription = "Paste"
                                 )
                             }
