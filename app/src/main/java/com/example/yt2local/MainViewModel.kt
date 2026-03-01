@@ -5,10 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -23,8 +19,11 @@ import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 enum class AppState {
     INITIALIZING,
@@ -33,6 +32,20 @@ enum class AppState {
     DOWNLOADING,
     ERROR
 }
+
+data class DownloaderUiState(
+    val appState: AppState = AppState.INITIALIZING,
+    val url: String = "",
+    val isAudio: Boolean = true,
+    val statusMessage: String = "Initializing...",
+    val downloadProgress: Float = 0f,
+    val progressStatus: String = "",
+    val detectedPlatform: String = "",
+    val downloadHistory: List<DownloadHistoryItem> = emptyList(),
+    val ytDlpVersion: String = "",
+    val autoDownloadPending: Boolean = false,
+    val snackbarMessage: String? = null
+)
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -50,39 +63,10 @@ class MainViewModel @Inject constructor(
     // Cancellable job for yt-dlp update — held so skipUpdate() can cancel it
     private var updateJob: Job? = null
 
-    // UI State
-    var url by mutableStateOf("")
-        private set
-    var isAudio by mutableStateOf(prefs.getBoolean(PREF_IS_AUDIO, true))
-        private set
-    var statusMessage by mutableStateOf("Initializing...")
-        private set
-    var appState by mutableStateOf(AppState.INITIALIZING)
-        private set
-    var downloadProgress by mutableFloatStateOf(0f)
-        private set
-    var progressStatus by mutableStateOf("")
-        private set
-    var detectedPlatform by mutableStateOf("")
-        private set
-    var downloadHistory = mutableStateOf<List<DownloadHistoryItem>>(emptyList())
-        private set
-    var ytDlpVersion by mutableStateOf("")
-        private set
-
-    // Auto-download flag: set when URL comes from share/view intent
-    var autoDownloadPending by mutableStateOf(false)
-        private set
-
-    // Snackbar message: set after successful download, consumed by UI
-    var snackbarMessage by mutableStateOf<String?>(null)
-        private set
-
-    val isReady: Boolean
-        get() = appState == AppState.READY
-
-    val isDownloading: Boolean
-        get() = appState == AppState.DOWNLOADING
+    private val _uiState = MutableStateFlow(
+        DownloaderUiState(isAudio = prefs.getBoolean(PREF_IS_AUDIO, true))
+    )
+    val uiState: StateFlow<DownloaderUiState> = _uiState.asStateFlow()
 
     init {
         initialize()
@@ -112,20 +96,18 @@ class MainViewModel @Inject constructor(
                 }
 
                 // Launch yt-dlp update as a cancellable child job
-                withContext(Dispatchers.Main) {
-                    appState = AppState.UPDATING
-                    statusMessage = "Updating yt-dlp... (tap Skip to proceed)"
-                }
+                _uiState.update { it.copy(appState = AppState.UPDATING, statusMessage = "Updating yt-dlp... (tap Skip to proceed)") }
                 updateJob = viewModelScope.launch(Dispatchers.IO) {
                     updateYtDlp()
                 }
                 updateJob?.join()  // Wait for completion, but job can be cancelled by skipUpdate()
 
                 // Transition to READY only if skipUpdate() hasn't already done it
-                withContext(Dispatchers.Main) {
-                    if (appState == AppState.UPDATING) {
-                        appState = AppState.READY
-                        statusMessage = "Ready to download"
+                _uiState.update { state ->
+                    if (state.appState == AppState.UPDATING) {
+                        state.copy(appState = AppState.READY, statusMessage = "Ready to download")
+                    } else {
+                        state
                     }
                 }
 
@@ -135,10 +117,7 @@ class MainViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Initialization failed", e)
-                withContext(Dispatchers.Main) {
-                    appState = AppState.ERROR
-                    statusMessage = "Initialization failed: ${e.message}"
-                }
+                _uiState.update { it.copy(appState = AppState.ERROR, statusMessage = "Initialization failed: ${e.message}") }
             }
         }
     }
@@ -147,47 +126,40 @@ class MainViewModel @Inject constructor(
         try {
             val updateResult = YoutubeDL.getInstance().updateYoutubeDL(context)
 
-            withContext(Dispatchers.Main) {
-                when (updateResult.status) {
-                    YoutubeDL.UpdateStatus.DONE -> {
-                        ytDlpVersion = updateResult.version ?: "Updated"
-                        Log.d(TAG, "yt-dlp updated to: $ytDlpVersion")
-                    }
-                    YoutubeDL.UpdateStatus.ALREADY_UP_TO_DATE -> {
-                        ytDlpVersion = updateResult.version ?: "Latest"
-                        Log.d(TAG, "yt-dlp already up to date: $ytDlpVersion")
-                    }
-                    else -> {
-                        Log.w(TAG, "yt-dlp update status: ${updateResult.status}")
-                    }
+            when (updateResult.status) {
+                YoutubeDL.UpdateStatus.DONE -> {
+                    val version = updateResult.version ?: "Updated"
+                    _uiState.update { it.copy(ytDlpVersion = version) }
+                    Log.d(TAG, "yt-dlp updated to: $version")
+                }
+                YoutubeDL.UpdateStatus.ALREADY_UP_TO_DATE -> {
+                    val version = updateResult.version ?: "Latest"
+                    _uiState.update { it.copy(ytDlpVersion = version) }
+                    Log.d(TAG, "yt-dlp already up to date: $version")
+                }
+                else -> {
+                    Log.w(TAG, "yt-dlp update status: ${updateResult.status}")
                 }
             }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to update yt-dlp (will use bundled version): ${e.message}")
-            withContext(Dispatchers.Main) {
-                ytDlpVersion = "Bundled"
-            }
+            _uiState.update { it.copy(ytDlpVersion = "Bundled") }
         }
     }
 
-    private suspend fun updateStatus(message: String) {
-        withContext(Dispatchers.Main) {
-            statusMessage = message
-        }
+    private fun updateStatus(message: String) {
+        _uiState.update { it.copy(statusMessage = message) }
     }
 
     fun onUrlChange(newUrl: String) {
-        url = newUrl
-        // Detect platform from URL
-        if (newUrl.isNotBlank()) {
-            detectedPlatform = repository.detectPlatform(newUrl)
-        } else {
-            detectedPlatform = ""
-        }
+        _uiState.update { it.copy(
+            url = newUrl,
+            detectedPlatform = if (newUrl.isNotBlank()) repository.detectPlatform(newUrl) else ""
+        )}
     }
 
     fun onFormatChange(audio: Boolean) {
-        isAudio = audio
+        _uiState.update { it.copy(isAudio = audio) }
         prefs.edit().putBoolean(PREF_IS_AUDIO, audio).apply()
     }
 
@@ -196,12 +168,16 @@ class MainViewModel @Inject constructor(
      * Forces audio mode and sets auto-download flag.
      */
     fun setUrlFromIntent(intentUrl: String, autoStart: Boolean = false) {
-        url = intentUrl
-        detectedPlatform = repository.detectPlatform(intentUrl)
+        _uiState.update { state ->
+            state.copy(
+                url = intentUrl,
+                detectedPlatform = repository.detectPlatform(intentUrl),
+                isAudio = if (autoStart) true else state.isAudio,
+                autoDownloadPending = autoStart
+            )
+        }
         if (autoStart) {
-            isAudio = true
             prefs.edit().putBoolean(PREF_IS_AUDIO, true).apply()
-            autoDownloadPending = true
         }
     }
 
@@ -209,78 +185,88 @@ class MainViewModel @Inject constructor(
      * Called by UI when auto-download conditions are met (READY + flag set).
      */
     fun consumeAutoDownload() {
-        if (autoDownloadPending) {
-            autoDownloadPending = false
+        if (_uiState.value.autoDownloadPending) {
+            _uiState.update { it.copy(autoDownloadPending = false) }
             startDownload()
         }
     }
 
     fun clearSnackbar() {
-        snackbarMessage = null
+        _uiState.update { it.copy(snackbarMessage = null) }
     }
 
     fun startDownload() {
-        if (url.isBlank()) {
-            statusMessage = "Please enter a URL"
+        val currentState = _uiState.value
+        if (currentState.url.isBlank()) {
+            _uiState.update { it.copy(statusMessage = "Please enter a URL") }
             return
         }
 
         // Extract URL if the input contains extra text
-        val extractedUrl = extractUrl(url)
+        val extractedUrl = extractUrl(currentState.url)
         if (extractedUrl == null) {
-            statusMessage = "No valid URL found in input"
+            _uiState.update { it.copy(statusMessage = "No valid URL found in input") }
             return
         }
 
-        appState = AppState.DOWNLOADING
-        downloadProgress = 0f
-        progressStatus = "Starting download..."
-        statusMessage = "Downloading from ${repository.detectPlatform(extractedUrl)}..."
+        _uiState.update { it.copy(
+            appState = AppState.DOWNLOADING,
+            downloadProgress = 0f,
+            progressStatus = "Starting download...",
+            statusMessage = "Downloading from ${repository.detectPlatform(extractedUrl)}..."
+        )}
 
         viewModelScope.launch {
             val result = repository.downloadMedia(
                 url = extractedUrl,
-                isAudio = isAudio,
+                isAudio = _uiState.value.isAudio,
                 onProgress = { progress ->
-                    downloadProgress = progress.progress
-                    progressStatus = progress.status
-                    if (progress.etaSeconds > 0) {
-                        val minutes = progress.etaSeconds / 60
-                        val seconds = progress.etaSeconds % 60
-                        statusMessage = "${progress.status} ETA: ${minutes}m ${seconds}s"
-                    } else {
-                        statusMessage = progress.status
-                    }
+                    _uiState.update { it.copy(
+                        downloadProgress = progress.progress,
+                        progressStatus = progress.status,
+                        statusMessage = if (progress.etaSeconds > 0) {
+                            val minutes = progress.etaSeconds / 60
+                            val seconds = progress.etaSeconds % 60
+                            "${progress.status} ETA: ${minutes}m ${seconds}s"
+                        } else {
+                            progress.status
+                        }
+                    )}
                 }
             )
 
-            withContext(Dispatchers.Main) {
-                appState = AppState.READY
-                downloadProgress = 0f
-                progressStatus = ""
-
+            val stateAtCompletion = _uiState.value
+            _uiState.update { state ->
                 if (result.success) {
-                    statusMessage = "Saved to Downloads/yt2local/${result.fileName}"
-                    snackbarMessage = "Saved: ${result.fileName}"
-
-                    // Post notification
-                    postDownloadNotification(result.fileName ?: "Download complete")
-
-                    // Add to history
                     val historyItem = DownloadHistoryItem(
                         fileName = result.fileName ?: "Unknown",
-                        platform = detectedPlatform,
-                        isAudio = isAudio,
+                        platform = stateAtCompletion.detectedPlatform,
+                        isAudio = stateAtCompletion.isAudio,
                         timestamp = System.currentTimeMillis()
                     )
-                    downloadHistory.value = listOf(historyItem) + downloadHistory.value.take(9)
-
-                    // Clear URL after successful download
-                    url = ""
-                    detectedPlatform = ""
+                    state.copy(
+                        appState = AppState.READY,
+                        downloadProgress = 0f,
+                        progressStatus = "",
+                        statusMessage = "Saved to Downloads/yt2local/${result.fileName}",
+                        snackbarMessage = "Saved: ${result.fileName}",
+                        downloadHistory = listOf(historyItem) + state.downloadHistory.take(9),
+                        url = "",
+                        detectedPlatform = ""
+                    )
                 } else {
-                    statusMessage = "Error: ${result.error}"
+                    state.copy(
+                        appState = AppState.READY,
+                        downloadProgress = 0f,
+                        progressStatus = "",
+                        statusMessage = "Error: ${result.error}"
+                    )
                 }
+            }
+
+            if (result.success) {
+                // Post notification
+                postDownloadNotification(result.fileName ?: "Download complete")
             }
         }
     }
@@ -307,8 +293,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun retryInitialization() {
-        appState = AppState.INITIALIZING
-        statusMessage = "Retrying initialization..."
+        _uiState.update { it.copy(appState = AppState.INITIALIZING, statusMessage = "Retrying initialization...") }
         initialize()
     }
 
@@ -321,17 +306,13 @@ class MainViewModel @Inject constructor(
     fun skipUpdate() {
         updateJob?.cancel()
         updateJob = null
-        appState = AppState.READY
-        statusMessage = "Ready to download (update skipped)"
+        _uiState.update { it.copy(appState = AppState.READY, statusMessage = "Ready to download (update skipped)") }
     }
 
     fun forceUpdateYtDlp() {
         viewModelScope.launch(Dispatchers.IO) {
             updateYtDlp()
-            withContext(Dispatchers.Main) {
-                appState = AppState.READY
-                statusMessage = "yt-dlp version: $ytDlpVersion"
-            }
+            _uiState.update { it.copy(appState = AppState.READY, statusMessage = "yt-dlp version: ${_uiState.value.ytDlpVersion}") }
         }
     }
 
