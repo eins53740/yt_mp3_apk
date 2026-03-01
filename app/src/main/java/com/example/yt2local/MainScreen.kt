@@ -72,6 +72,7 @@ import java.util.Locale
 fun MainScreen(
     viewModel: MainViewModel
 ) {
+<<<<<<< HEAD
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val clipboardManager = LocalClipboardManager.current
@@ -81,6 +82,13 @@ fun MainScreen(
     LaunchedEffect(uiState.autoDownloadPending, uiState.appState) {
         if (uiState.autoDownloadPending && uiState.appState == AppState.READY) {
             viewModel.consumeAutoDownload()
+=======
+    val hasInitError = viewModel.initializationError.value != null
+
+    LaunchedEffect(initialUrl) {
+        if (initialUrl != null) {
+            viewModel.onUrlChange(initialUrl)
+>>>>>>> main
         }
     }
 
@@ -106,6 +114,7 @@ fun MainScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+<<<<<<< HEAD
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
@@ -116,6 +125,14 @@ fun MainScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
+=======
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = { viewModel.startDownload() },
+            enabled = !viewModel.isDownloading && viewModel.isYoutubeDLInitialized.value,
+            modifier = Modifier.fillMaxWidth()
+>>>>>>> main
         ) {
             item {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -126,6 +143,7 @@ fun MainScreen(
                     contentDescription = "Logo",
                     modifier = Modifier.size(80.dp)
                 )
+<<<<<<< HEAD
 
                 Text(
                     text = "YT2Local",
@@ -163,6 +181,22 @@ fun MainScreen(
                         }
                     }
                 }
+=======
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Processing...")
+            } else if (viewModel.isInitializing.value) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Initializing...")
+            } else if (!viewModel.isYoutubeDLInitialized.value) {
+                Text("Not Ready")
+            } else {
+                Text("Convert & Download")
+>>>>>>> main
             }
 
             item {
@@ -202,6 +236,7 @@ fun MainScreen(
                     }
                 )
 
+<<<<<<< HEAD
                 // Platform Detection Badge
                 AnimatedVisibility(
                     visible = uiState.detectedPlatform.isNotBlank(),
@@ -222,6 +257,19 @@ fun MainScreen(
                     }
                 }
             }
+=======
+        if (hasInitError && !viewModel.isYoutubeDLInitialized.value && !viewModel.isInitializing.value) {
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedButton(
+                onClick = { viewModel.retryInitialization() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Retry Initialization")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+>>>>>>> main
 
             item {
                 // Format Selection

@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
+=======
+>>>>>>> main
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,6 +30,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+<<<<<<< HEAD
 
         // Enable edge-to-edge display
         enableEdgeToEdge()
@@ -36,6 +40,12 @@ class MainActivity : ComponentActivity() {
 
         // Handle initial intent (launch from share/view)
         handleIntent(intent)
+=======
+        var sharedUrl: String? = null
+        if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {
+            sharedUrl = intent.getStringExtra(Intent.EXTRA_TEXT)
+        }
+>>>>>>> main
 
         setContent {
             YT2LocalTheme {

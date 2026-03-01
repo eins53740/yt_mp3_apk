@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #Sun Mar 01 22:51:50 WET 2026
 base.0=D\:\\GitHub\\BD\\yt_mp3_apk\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=D\:\\GitHub\\BD\\yt_mp3_apk\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
@@ -32,3 +33,18 @@ renamed.6=classes7.dex
 renamed.7=classes8.dex
 renamed.8=classes9.dex
 renamed.9=classes10.dex
+=======
+#Sun Mar 01 18:47:17 WET 2026
+base.0=C\:\\Users\\bfsd\\Documents\\GitHub\\yt_mp3_apk\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
+base.1=C\:\\Users\\bfsd\\Documents\\GitHub\\yt_mp3_apk\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
+base.2=C\:\\Users\\bfsd\\Documents\\GitHub\\yt_mp3_apk\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\13\\classes.dex
+base.3=C\:\\Users\\bfsd\\Documents\\GitHub\\yt_mp3_apk\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes2.dex
+path.0=classes.dex
+path.1=0/classes.dex
+path.2=13/classes.dex
+path.3=classes2.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
+renamed.2=classes3.dex
+renamed.3=classes4.dex
+>>>>>>> main

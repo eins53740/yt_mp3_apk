@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+<<<<<<< HEAD
 import com.example.yt2local.data.DownloadServiceState
 import com.example.yt2local.data.DownloadStateHolder
 import com.example.yt2local.data.db.DownloadHistoryDao
@@ -25,6 +26,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+=======
+import kotlinx.coroutines.flow.StateFlow
+>>>>>>> main
 import kotlinx.coroutines.launch
 
 enum class AppState {
@@ -35,6 +39,7 @@ enum class AppState {
     ERROR
 }
 
+<<<<<<< HEAD
 data class DownloaderUiState(
     val appState: AppState = AppState.INITIALIZING,
     val url: String = "",
@@ -161,6 +166,39 @@ class MainViewModel @Inject constructor(
                 _uiState.update { it.copy(appState = AppState.UPDATING, statusMessage = "Updating yt-dlp... (tap Skip to proceed)") }
                 updateJob = viewModelScope.launch(Dispatchers.IO) {
                     updateYtDlp()
+=======
+    var url by mutableStateOf("")
+    var isAudio by mutableStateOf(true)
+    var statusMessage by mutableStateOf("Initializing...")
+    var isDownloading by mutableStateOf(false)
+    var downloadHistory = mutableStateOf<List<String>>(emptyList())
+
+    val isInitializing: StateFlow<Boolean> = YT2LocalApplication.isInitializing
+    val isYoutubeDLInitialized: StateFlow<Boolean> = YT2LocalApplication.isYoutubeDLInitialized
+    val initializationError: StateFlow<String?> = YT2LocalApplication.initializationError
+
+    init {
+        viewModelScope.launch {
+            isInitializing.collect { initializing ->
+                if (initializing) {
+                    statusMessage = "Initializing..."
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            isYoutubeDLInitialized.collect { initialized ->
+                if (initialized) {
+                    statusMessage = "Ready"
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            initializationError.collect { error ->
+                if (error != null) {
+                    statusMessage = "Error: $error"
+>>>>>>> main
                 }
                 updateJob?.join()  // Wait for completion, but job can be cancelled by skipUpdate()
 
@@ -257,10 +295,32 @@ class MainViewModel @Inject constructor(
         _uiState.update { it.copy(snackbarMessage = null) }
     }
 
+    fun retryInitialization() {
+        if (isInitializing.value || isYoutubeDLInitialized.value) {
+            return
+        }
+        statusMessage = "Retrying initialization..."
+        getApplication<YT2LocalApplication>().retryInitialization()
+    }
+
     fun startDownload() {
+<<<<<<< HEAD
         val currentState = _uiState.value
         if (currentState.url.isBlank()) {
             _uiState.update { it.copy(statusMessage = "Please enter a URL") }
+=======
+        if (!isYoutubeDLInitialized.value) {
+            statusMessage = if (initializationError.value != null) {
+                "Initialization failed. Tap Retry Initialization."
+            } else {
+                "Please wait, initializing..."
+            }
+            return
+        }
+
+        if (url.isBlank()) {
+            statusMessage = "Please enter a URL"
+>>>>>>> main
             return
         }
 

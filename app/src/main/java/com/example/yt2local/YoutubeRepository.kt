@@ -1,0 +1,89 @@
+package com.example.yt2local
+
+import android.content.ContentValues
+import android.content.Context
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
+import com.yausername.youtubedl_android.YoutubeDL
+import com.yausername.youtubedl_android.YoutubeDLRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileInputStream
+
+class YoutubeRepository(private val context: Context) {
+
+    companion object {
+        private const val TAG = "YoutubeRepository"
+    }
+
+    suspend fun downloadVideo(url: String, isAudio: Boolean): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Starting download for URL: $url, isAudio: $isAudio")
+            
+            // 1. Download to internal storage first
+            val tempDir = File(context.filesDir, "yt_temp")
+            if (!tempDir.exists()) tempDir.mkdirs()
+            
+            // Clean up old temp files
+            tempDir.listFiles()?.forEach { it.delete() }
+
+            val format = if (isAudio) "bestaudio/best" else "bestvideo+bestaudio/best"
+            val request = YoutubeDLRequest(url)
+            val tempFileTemplate = "${tempDir.absolutePath}/%(title)s.%(ext)s"
+            request.addOption("-o", tempFileTemplate)
+            request.addOption("-f", format)
+            
+            if (isAudio) {
+                request.addOption("-x") // Extract audio
+                request.addOption("--audio-format", "mp3")
+                request.addOption("--audio-quality", "192K")
+            } else {
+                request.addOption("--merge-output-format", "mp4")
+            }
+
+            Log.d(TAG, "Calling YoutubeDL.getInstance().execute()...")
+            val response = YoutubeDL.getInstance().execute(request) { progress, etaInSeconds, line ->
+                println("Progress: $progress, ETA: $etaInSeconds")
+            }
+
+            // 2. Find the downloaded file
+            val downloadedFile = tempDir.listFiles()?.firstOrNull() 
+                ?: return@withContext Result.failure(Exception("No file downloaded"))
+
+            // 3. Move to MediaStore (Downloads/yt2local)
+            val extension = downloadedFile.extension
+            val sdf = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
+            val datetime = sdf.format(java.util.Date())
+            val fileName = "yt_${datetime}.${extension}"
+            val relativePath = "${Environment.DIRECTORY_DOWNLOADS}/yt2local"
+            
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, if (isAudio) "audio/mpeg" else "video/mp4") // Simplified mime type
+                put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+            }
+
+            val resolver = context.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                ?: return@withContext Result.failure(Exception("Failed to create MediaStore entry"))
+
+            resolver.openOutputStream(uri)?.use { outputStream ->
+                FileInputStream(downloadedFile).use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+
+            // 4. Cleanup
+            downloadedFile.delete()
+
+            Result.success(fileName)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during download: ${e.message}", e)
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+}

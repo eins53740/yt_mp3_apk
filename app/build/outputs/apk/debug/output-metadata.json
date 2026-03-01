@@ -11,8 +11,13 @@
       "type": "UNIVERSAL",
       "filters": [],
       "attributes": [],
+<<<<<<< HEAD
       "versionCode": 2,
       "versionName": "2.0",
+=======
+      "versionCode": 1,
+      "versionName": "1.0",
+>>>>>>> main
       "outputFile": "app-universal-debug.apk"
     },
     {
@@ -20,6 +25,7 @@
       "filters": [
         {
           "filterType": "ABI",
+<<<<<<< HEAD
           "value": "x86_64"
         }
       ],
@@ -46,12 +52,19 @@
       "filters": [
         {
           "filterType": "ABI",
+=======
+>>>>>>> main
           "value": "arm64-v8a"
         }
       ],
       "attributes": [],
+<<<<<<< HEAD
       "versionCode": 2,
       "versionName": "2.0",
+=======
+      "versionCode": 1,
+      "versionName": "1.0",
+>>>>>>> main
       "outputFile": "app-arm64-v8a-debug.apk"
     },
     {
@@ -59,13 +72,48 @@
       "filters": [
         {
           "filterType": "ABI",
+<<<<<<< HEAD
+=======
+          "value": "armeabi-v7a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 1,
+      "versionName": "1.0",
+      "outputFile": "app-armeabi-v7a-debug.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+>>>>>>> main
           "value": "x86"
         }
       ],
       "attributes": [],
+<<<<<<< HEAD
       "versionCode": 2,
       "versionName": "2.0",
       "outputFile": "app-x86-debug.apk"
+=======
+      "versionCode": 1,
+      "versionName": "1.0",
+      "outputFile": "app-x86-debug.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "x86_64"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 1,
+      "versionName": "1.0",
+      "outputFile": "app-x86_64-debug.apk"
+>>>>>>> main
     }
   ],
   "elementType": "File",
