@@ -16,7 +16,7 @@ Requirements for this refactoring milestone. Each maps to roadmap phases.
 ### Architecture
 
 - [x] **ARCH-01**: All dependencies injected via Hilt (ViewModel, Repository, Service)
-- [ ] **ARCH-02**: UI state managed via single StateFlow sealed class (replace scattered mutableStateOf)
+- [x] **ARCH-02**: UI state managed via single StateFlow sealed class (replace scattered mutableStateOf) (completed 2026-03-01)
 - [ ] **ARCH-03**: Errors displayed as user-friendly messages with retry option (no stack traces)
 - [ ] **ARCH-04**: URL field preserved on download failure (user doesn't have to re-enter)
 
@@ -70,7 +70,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIX-02 | Phase 1 | Complete |
 | FIX-03 | Phase 1 | Complete |
 | ARCH-01 | Phase 2 | Complete |
-| ARCH-02 | Phase 2 | Pending |
+| ARCH-02 | Phase 2 | Complete |
 | ARCH-03 | Phase 3 | Pending |
 | ARCH-04 | Phase 3 | Pending |
 | REL-01 | Phase 3 | Pending |
@@ -88,4 +88,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-03-01 after 02-01 completion (MOD-01 marked complete)*
+*Last updated: 2026-03-01 after 02-03 completion (ARCH-02 marked complete)*
