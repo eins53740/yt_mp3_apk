@@ -1,7 +1,6 @@
 package com.example.yt2local
 
 import android.Manifest
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -13,8 +12,11 @@ import androidx.compose.runtime.setValue
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import com.yausername.aria2c.Aria2c
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
@@ -32,9 +34,12 @@ enum class AppState {
     ERROR
 }
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = VideoRepository(application)
-    private val prefs = application.getSharedPreferences("yt2local_prefs", Context.MODE_PRIVATE)
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val repository: VideoRepository,
+    @ApplicationContext private val context: Context
+) : ViewModel() {
+    private val prefs = context.getSharedPreferences("yt2local_prefs", Context.MODE_PRIVATE)
 
     companion object {
         private const val TAG = "MainViewModel"
@@ -89,18 +94,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 updateStatus("Initializing YoutubeDL...")
 
                 // Initialize YoutubeDL
-                YoutubeDL.getInstance().init(getApplication())
+                YoutubeDL.getInstance().init(context)
                 Log.d(TAG, "YoutubeDL initialized")
 
                 // Initialize FFmpeg
                 updateStatus("Initializing FFmpeg...")
-                FFmpeg.getInstance().init(getApplication())
+                FFmpeg.getInstance().init(context)
                 Log.d(TAG, "FFmpeg initialized")
 
                 // Initialize aria2c for faster downloads
                 updateStatus("Initializing Aria2c...")
                 try {
-                    Aria2c.getInstance().init(getApplication())
+                    Aria2c.getInstance().init(context)
                     Log.d(TAG, "Aria2c initialized")
                 } catch (e: Exception) {
                     Log.w(TAG, "Aria2c initialization failed (optional): ${e.message}")
@@ -140,7 +145,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun updateYtDlp() {
         try {
-            val updateResult = YoutubeDL.getInstance().updateYoutubeDL(getApplication())
+            val updateResult = YoutubeDL.getInstance().updateYoutubeDL(context)
 
             withContext(Dispatchers.Main) {
                 when (updateResult.status) {
@@ -281,18 +286,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun postDownloadNotification(fileName: String) {
-        val app = getApplication<Application>()
-
         // Check notification permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(app, Manifest.permission.POST_NOTIFICATIONS)
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
             ) {
                 return
             }
         }
 
-        val notification = NotificationCompat.Builder(app, YT2LocalApplication.CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, YT2LocalApplication.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Download Complete")
             .setContentText(fileName)
@@ -300,7 +303,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat.from(app).notify(NOTIFICATION_ID, notification)
+        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
     }
 
     fun retryInitialization() {
