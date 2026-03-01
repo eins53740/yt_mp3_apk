@@ -60,3 +60,7 @@
 
 # Keep DownloaderUiState data class (created in Plan 03)
 -keepclassmembers class com.example.yt2local.DownloaderUiState { *; }
+
+# Keep Room Entity and database classes
+-keepclassmembers class com.example.yt2local.data.db.DownloadHistoryEntity { *; }
+-keep class com.example.yt2local.data.db.** { *; }
